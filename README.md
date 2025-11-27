@@ -43,7 +43,7 @@ Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazl
 |------------|----------|---------|
 | 231401023 | [cite_start]**Saadet Cansu Baktıroğlu** | sbaktiroglu@etu.edu.tr [cite: 7] |
 | 231101058 | [cite_start]**Tuna Yılmaz** | tunayilmaz@etu.edu.tr [cite: 8] |
-| 231104085 | [cite_start]**Ahmet Taha Özcan** | ahmettahaozcan@etu.edu.tr [cite: 9] |
+| 231104085 |  [cite_start]**Ahmet Taha Özcan** | ahmettahaozcan@etu.edu.tr [cite: 9] |
 
 ---
 *Bu proje, akademik bir çalışma olarak geliştirilmiştir.*
