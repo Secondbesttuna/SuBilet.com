@@ -24,8 +24,8 @@ Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazl
 [cite_start]Proje, **web tabanlı** bir mimariye sahiptir ve aşağıdaki teknolojiler kullanılarak geliştirilmektedir[cite: 75, 76, 77]:
 
 * **Veritabanı:** PostgreSQL
-* **Backend:** Java (Maven), Spring Boot Framework
-* **Frontend:** HTML, CSS, JavaScript
+* **Backend:** Java 17, Maven, Spring Boot 3.4.12, Spring Data JPA, Lombok
+* **Frontend:** React 19, React Router DOM, Axios, Modern CSS3
 
 ## 🗄️ Veritabanı Tasarımı (ER Modeli)
 
@@ -44,6 +44,47 @@ Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazl
 | 231401023 | [cite_start]**Saadet Cansu Baktıroğlu** | sbaktiroglu@etu.edu.tr [cite: 7] |
 | 231101058 | [cite_start]**Tuna Yılmaz** | tunayilmaz@etu.edu.tr [cite: 8] |
 | 231104085 |  [cite_start]**Ahmet Taha Özcan** | ahmettahaozcan@etu.edu.tr [cite: 9] |
+
+## 🚀 Projeyi Çalıştırma
+
+⚡ **[START-WITHOUT-SQL.md](START-WITHOUT-SQL.md)** - SQL'siz hemen başlat! (ÖNERİLEN)
+
+📖 **[QUICKSTART.md](QUICKSTART.md)** - MySQL ile 3 adımda başlat
+
+📚 **[SETUP.md](SETUP.md)** - Detaylı kurulum rehberi
+
+### En Hızlı Başlangıç (SQL Gereksiz!)
+
+```bash
+# Backend (H2 in-memory DB kullanır, otomatik verilerle)
+cd SuBilet-backend
+mvn spring-boot:run
+
+# Frontend (yeni terminal)
+cd SuBilet-frontend
+npm install
+npm start
+```
+
+> **Not**: Backend **H2 in-memory database** ile çalışır, MySQL/PostgreSQL kurulumuna gerek yok! 
+> Veriler otomatik yüklenir: 30+ uçuş, 8 havalimanı, 4 havayolu
+
+## 📁 Proje Yapısı
+
+```
+SuBilet.com/
+├── SuBilet-backend/     # Spring Boot REST API
+│   ├── controller/      # HTTP Endpoints
+│   ├── service/         # Business Logic
+│   ├── entity/          # JPA Entities
+│   ├── repository/      # Data Access
+│   └── exception/       # Error Handling
+│
+└── SuBilet-frontend/    # React SPA
+    ├── components/      # Navbar, Footer vb.
+    ├── pages/          # Home, FlightSearch vb.
+    └── services/       # API İstemcileri
+```
 
 ---
 *Bu proje, akademik bir çalışma olarak geliştirilmiştir.*

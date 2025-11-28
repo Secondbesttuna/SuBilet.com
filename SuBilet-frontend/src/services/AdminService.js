@@ -1,15 +1,16 @@
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 
-const API_URL = 'http://localhost:8080/api/admin';
+const API_URL = '/admin';
 
 class AdminService {
     
     login(username, password) {
-        return axios.post(API_URL + '/login', {
+        return apiClient.post(`${API_URL}/login`, {
             username: username,
             password: password
         });
     }
 }
 
-export default new AdminService();
+const adminServiceInstance = new AdminService();
+export default adminServiceInstance;

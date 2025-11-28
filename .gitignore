@@ -1,44 +1,47 @@
-# --- GENEL SİSTEM DOSYALARI ---
+# Backend (Maven/Spring Boot)
+SuBilet-backend/target/
+SuBilet-backend/.mvn/
+SuBilet-backend/mvnw
+SuBilet-backend/mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.DS_Store
+
+# Frontend (React/Node)
+SuBilet-frontend/node_modules/
+SuBilet-frontend/build/
+SuBilet-frontend/.pnp
+SuBilet-frontend/.pnp.js
+SuBilet-frontend/coverage/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
 Thumbs.db
-*.log
 
-# --- IDE ve EDİTÖR AYARLARI ---
-# Kendi kişisel editör ayarlarını göndermemek için
-.vscode/
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# --- FRONTEND (React) ---
-# node_modules çok ağırdır, asla yüklenmez (npm install ile geri gelir)
-**/node_modules/
-# build klasörü her start/build işleminde değişir, yüklenmez
-**/build/
-**/dist/
-# Çevresel değişkenler (şifreler vs.) gizli kalmalı
+# Environment
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# --- BACKEND (Spring Boot / Maven) ---
-# target klasörü derlenmiş dosyaları tutar, yüklenmez
-**/target/
-# Derlenmiş Java sınıfları
-**.class
-# Maven Wrapper (İsteğe bağlı, genelde kalabilir ama bazen gizlenir)
-.mvn/wrapper/maven-wrapper.properties
-# Spring Boot logları
-**/logs/
-
-# --- DİĞER ---
-# Geçici dosyalar
-*.tmp
-*.bak
-*.swp
+# Documents
+*.docx
+*.pdf
+*.pptx

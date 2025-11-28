@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AdminService from '../services/AdminService';
 import { useNavigate } from 'react-router-dom';
+// Bildirimler apiClient interceptor tarafından otomatik gösteriliyor
 
 function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -13,16 +14,18 @@ function AdminLogin() {
 
     try {
       const response = await AdminService.login(username, password);
+      const adminData = response.data || response.apiResponse?.data;
       
-      if (response.data) {
-        alert("Giriş Başarılı: Hoşgeldin " + response.data.fullName);
-        localStorage.setItem('admin', JSON.stringify(response.data));
+      if (adminData) {
+        localStorage.setItem('admin', JSON.stringify(adminData));
+        // Bildirim apiClient interceptor tarafından otomatik gösterilecek
         navigate('/admin-dashboard');
       } else {
         setError("Kullanıcı adı veya şifre hatalı!");
       }
     } catch (err) {
-      setError("Hata: Backend (Port 8080) çalışıyor mu?");
+      // Hata bildirimi apiClient interceptor tarafından gösterilecek
+      setError("Giriş yapılamadı. Lütfen bilgilerinizi kontrol edin.");
       console.error(err);
     }
   };
