@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AirportService from '../services/AirportService';
-import UserLogin from './UserLogin';
 import { showWarning } from '../utils/notification';
 import './Home.css';
 
@@ -10,36 +9,11 @@ function Home() {
   const [airports, setAirports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showLogin, setShowLogin] = useState(false);
-  const [customer, setCustomer] = useState(null);
   const [formData, setFormData] = useState({
     originAirportId: '',
     destinationAirportId: '',
     date: ''
   });
-
-  useEffect(() => {
-    // Kullanıcı giriş durumunu kontrol et
-    const checkCustomer = () => {
-      const customerData = localStorage.getItem('customer');
-      if (customerData) {
-        setCustomer(JSON.parse(customerData));
-      } else {
-        setCustomer(null);
-      }
-    };
-
-    checkCustomer();
-
-    // localStorage değişikliklerini dinle
-    window.addEventListener('customerLogin', checkCustomer);
-    window.addEventListener('customerLogout', checkCustomer);
-
-    return () => {
-      window.removeEventListener('customerLogin', checkCustomer);
-      window.removeEventListener('customerLogout', checkCustomer);
-    };
-  }, []);
 
   useEffect(() => {
     // Havalimanlarını yükle
@@ -82,53 +56,14 @@ function Home() {
     });
   };
 
-  const handleLoginSuccess = (customerData) => {
-    setCustomer(customerData);
-    window.dispatchEvent(new Event('customerLogin'));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('customer');
-    setCustomer(null);
-    window.dispatchEvent(new Event('customerLogout'));
-  };
-
   return (
     <div className="home">
-      {showLogin && (
-        <UserLogin 
-          onLoginSuccess={handleLoginSuccess}
-          onClose={() => setShowLogin(false)}
-        />
-      )}
-      
       <div className="hero-section">
         <div className="hero-content">
-          <h1 className="hero-title">✈️ ŞUBİLET'e Hoş Geldiniz</h1>
+          <h1 className="hero-title">ŞUBİLET'e Hoş Geldiniz</h1>
           <p className="hero-subtitle">
             Türkiye'nin tüm havayolu firmalarını karşılaştırın, en uygun uçuş biletini bulun!
           </p>
-          
-          {/* Kullanıcı Giriş Durumu */}
-          <div className="user-status">
-            {customer ? (
-              <div className="logged-in">
-                <span>Hoş geldiniz, <strong>{customer.isimSoyad}</strong></span>
-                <div className="user-actions">
-                  <button onClick={() => navigate('/reservations')} className="btn-reservations">
-                    Rezervasyonlarım
-                  </button>
-                  <button onClick={handleLogout} className="btn-logout">
-                    Çıkış Yap
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => setShowLogin(true)} className="btn-login-hero">
-                🔐 Kullanıcı Girişi
-              </button>
-            )}
-          </div>
         </div>
       </div>
 
@@ -137,29 +72,14 @@ function Home() {
           <h2>Uçuş Ara</h2>
           
           {error && (
-            <div style={{
-              backgroundColor: '#fee',
-              color: '#c33',
-              padding: '15px',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              textAlign: 'center'
-            }}>
+            <div className="error-box">
               <strong>⚠️ Hata:</strong> {error}
             </div>
           )}
           
           {loading && (
-            <div style={{textAlign: 'center', padding: '20px', color: '#667eea'}}>
-              <div style={{
-                border: '3px solid #f3f3f3',
-                borderTop: '3px solid #667eea',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                animation: 'spin 1s linear infinite',
-                margin: '0 auto 10px'
-              }}></div>
+            <div className="loading-box">
+              <div className="spinner-small"></div>
               Havalimanları yükleniyor...
             </div>
           )}
@@ -223,13 +143,11 @@ function Home() {
                   required
                 />
               </div>
-
-              <div className="form-group">
-                <button type="submit" className="btn-search">
-                  Uçuş Ara
-                </button>
-              </div>
             </div>
+
+            <button type="submit" className="btn-search" disabled={loading || error}>
+              🔍 Uçuş Ara
+            </button>
           </form>
         </div>
       </div>
@@ -238,24 +156,24 @@ function Home() {
         <h2>Neden ŞUBİLET?</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">🔍</div>
-            <h3>Kolay Arama</h3>
-            <p>Tüm havayolu firmalarının uçuşlarını tek bir platformda karşılaştırın</p>
+            <div className="feature-icon">✈️</div>
+            <h3>Tüm Havayolları</h3>
+            <p>Türkiye'nin önde gelen tüm havayolu firmalarını tek bir platformda karşılaştırın.</p>
           </div>
           <div className="feature-card">
             <div className="feature-icon">💰</div>
-            <h3>En İyi Fiyat</h3>
-            <p>Fiyat, saat ve aktarma bilgilerine göre en uygun uçuşu bulun</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">⚡</div>
-            <h3>Hızlı Rezervasyon</h3>
-            <p>Saniyeler içinde rezervasyon yapın ve biletinizi alın</p>
+            <h3>En İyi Fiyatlar</h3>
+            <p>En uygun fiyatlı biletleri bulun, bütçenize en uygun seçeneği seçin.</p>
           </div>
           <div className="feature-card">
             <div className="feature-icon">🔒</div>
             <h3>Güvenli Ödeme</h3>
-            <p>256-bit SSL ile korunan güvenli ödeme altyapısı</p>
+            <p>256-bit SSL şifreleme ile güvenli ödeme yapın.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">📱</div>
+            <h3>7/24 Destek</h3>
+            <p>İhtiyacınız olduğunda her zaman yanınızdayız.</p>
           </div>
         </div>
       </div>
@@ -264,4 +182,3 @@ function Home() {
 }
 
 export default Home;
-

@@ -14,7 +14,13 @@ public class Customer {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "tc_no", unique = true, nullable = false, length = 11)
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "tc_no", unique = true, nullable = true, length = 11)
     private String tcNo;
 
     @Column(name = "isim_soyad", nullable = false)

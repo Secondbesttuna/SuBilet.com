@@ -74,7 +74,7 @@
 .stat-value {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #2563eb;
   line-height: 1;
   margin-bottom: 5px;
 }
@@ -115,7 +115,7 @@
 }
 
 .tab.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
   color: white;
 }
 
@@ -131,7 +131,7 @@
 .loading {
   text-align: center;
   padding: 60px 20px;
-  color: #667eea;
+  color: #2563eb;
   font-size: 1.2rem;
 }
 

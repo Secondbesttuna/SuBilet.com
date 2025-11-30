@@ -10,6 +10,7 @@ import Booking from './pages/Booking';
 import MyReservations from './pages/MyReservations';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import Auth from './pages/Auth';
 import './App.css';
 
 function App() {
@@ -34,6 +35,9 @@ function App() {
               
               {/* Rezervasyonlarım */}
               <Route path="/reservations" element={<MyReservations />} />
+              
+              {/* Giriş/Kayıt Sayfası */}
+              <Route path="/auth" element={<Auth />} />
               
               {/* Admin Giriş */}
               <Route path="/admin" element={<AdminLogin />} />

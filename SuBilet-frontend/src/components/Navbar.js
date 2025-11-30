@@ -1,34 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import AuthService from '../services/AuthService';
 import './Navbar.css';
 
 function Navbar() {
   const navigate = useNavigate();
-  const [customer, setCustomer] = useState(null);
+  const [user, setUser] = useState(null);
+  const [userType, setUserType] = useState(null);
 
   useEffect(() => {
-    // Kullanıcı durumunu kontrol et
-    const customerData = localStorage.getItem('customer');
-    if (customerData) {
-      setCustomer(JSON.parse(customerData));
+    // sessionStorage'dan user bilgisini oku
+    const userData = sessionStorage.getItem('user');
+    const type = sessionStorage.getItem('userType');
+    if (userData && type) {
+      setUser(JSON.parse(userData));
+      setUserType(type);
     }
-
-    // localStorage değişikliklerini dinle
-    const handleStorageChange = () => {
-      const updatedCustomer = localStorage.getItem('customer');
-      setCustomer(updatedCustomer ? JSON.parse(updatedCustomer) : null);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('customerLogin', handleStorageChange);
-    window.addEventListener('customerLogout', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('customerLogin', handleStorageChange);
-      window.removeEventListener('customerLogout', handleStorageChange);
-    };
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userType');
+      sessionStorage.removeItem('user');
+      setUser(null);
+      setUserType(null);
+      navigate('/');
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -40,26 +43,33 @@ function Navbar() {
           <li className="navbar-item">
             <Link to="/" className="navbar-link">Ana Sayfa</Link>
           </li>
-          {customer && (
+          {user && userType === 'CUSTOMER' && (
             <li className="navbar-item">
               <Link to="/reservations" className="navbar-link">Rezervasyonlarım</Link>
             </li>
           )}
-          <li className="navbar-item">
-            <Link to="/admin" className="navbar-link admin-link">Admin</Link>
-          </li>
-          {customer && (
+          {!user && (
             <li className="navbar-item">
-              <span className="navbar-user">
-                👤 {customer.isimSoyad}
-              </span>
+              <Link to="/auth" className="navbar-link">Giriş Yap / Kayıt Ol</Link>
             </li>
           )}
         </ul>
+
+        <div className="navbar-actions">
+          {user && (
+            <>
+              <span className="navbar-user">
+                Hoş geldin, {user.isimSoyad || user.fullName || user.username}
+              </span>
+              <button onClick={handleLogout} className="navbar-link" style={{background: 'transparent', border: 'none', cursor: 'pointer'}}>
+                Çıkış Yap
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
 }
 
 export default Navbar;
-

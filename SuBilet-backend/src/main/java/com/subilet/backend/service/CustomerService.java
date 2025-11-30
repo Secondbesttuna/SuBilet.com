@@ -25,10 +25,21 @@ public class CustomerService {
 
     public Customer createCustomer(Customer customer) {
         // TC No kontrolü - varsa mevcut müşteriyi döndür
-        Optional<Customer> existing = customerRepository.findByTcNo(customer.getTcNo());
-        if (existing.isPresent()) {
-            return existing.get(); // Mevcut müşteriyi döndür
+        if (customer.getTcNo() != null && !customer.getTcNo().isEmpty()) {
+            Optional<Customer> existing = customerRepository.findByTcNo(customer.getTcNo());
+            if (existing.isPresent()) {
+                return existing.get(); // Mevcut müşteriyi döndür
+            }
         }
+        
+        // Username ve password kontrolü
+        if (customer.getUsername() == null || customer.getUsername().isEmpty()) {
+            throw new RuntimeException("Kullanıcı adı zorunludur");
+        }
+        if (customer.getPassword() == null || customer.getPassword().isEmpty()) {
+            throw new RuntimeException("Şifre zorunludur");
+        }
+        
         return customerRepository.save(customer);
     }
 

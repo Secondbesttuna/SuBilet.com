@@ -12,15 +12,17 @@ function MyReservations() {
   const [customer, setCustomer] = useState(null);
 
   useEffect(() => {
-    // Müşteri kontrolü
-    const customerData = localStorage.getItem('customer');
-    if (!customerData) {
+    // Müşteri kontrolü - sessionStorage kullan
+    const userData = sessionStorage.getItem('user');
+    const userType = sessionStorage.getItem('userType');
+    
+    if (!userData || userType !== 'CUSTOMER') {
       showWarning('Giriş Gerekli', 'Rezervasyonlarınızı görmek için lütfen giriş yapın!');
-      navigate('/');
+      navigate('/auth');
       return;
     }
 
-    const customerObj = JSON.parse(customerData);
+    const customerObj = JSON.parse(userData);
     setCustomer(customerObj);
     loadReservations(customerObj.userId);
   }, [navigate]);
@@ -39,9 +41,10 @@ function MyReservations() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('customer');
-    window.dispatchEvent(new Event('customerLogout'));
-    navigate('/');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('user');
+    navigate('/auth');
   };
 
   const formatDateTime = (dateTime) => {
@@ -137,7 +140,14 @@ function MyReservations() {
                       <div className="city">{reservation.flight.originAirport.city}</div>
                       <div className="time">{formatDateTime(reservation.flight.kalkisTarihi)}</div>
                     </div>
-                    <div className="arrow">→</div>
+                    <div className="arrow-container">
+                      <div className="arrow">→</div>
+                      {reservation.flight.hasLayover && reservation.flight.layoverAirport && (
+                        <div className="layover-badge">
+                          Aktarma: {reservation.flight.layoverAirport.code}
+                        </div>
+                      )}
+                    </div>
                     <div className="airport-info">
                       <div className="airport-code">{reservation.flight.destinationAirport.code}</div>
                       <div className="city">{reservation.flight.destinationAirport.city}</div>
@@ -152,7 +162,7 @@ function MyReservations() {
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Koltuk:</span>
-                      <span className="detail-value">{reservation.seatNumber}</span>
+                      <span className="detail-value">{reservation.seatNumber || 'Check-in\'de belirlenecek'}</span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Fiyat:</span>

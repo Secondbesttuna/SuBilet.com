@@ -11,6 +11,20 @@ const apiClient = axios.create({
   },
 });
 
+// Request interceptor - Token ekle
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor - Backend'den gelen ApiResponse'u işle
 apiClient.interceptors.response.use(
   (response) => {
@@ -18,12 +32,13 @@ apiClient.interceptors.response.use(
     if (response.data && typeof response.data === 'object' && 'success' in response.data) {
       const apiResponse = response.data;
       const method = response.config?.method?.toLowerCase();
+      const url = response.config?.url || '';
       
-      // Notification göster (GET hariç tüm istekler için)
-      // GET istekleri için mesajları göstermeyelim (sadece POST, PUT, DELETE için)
-      if (apiResponse.message && method && ['post', 'put', 'delete', 'patch'].includes(method)) {
-        // Debug: Bildirim gösterilecek
-        console.log('Bildirim gösteriliyor:', { method, message: apiResponse.message, success: apiResponse.success });
+      // Payment endpoint'leri için bildirim gösterme (sadece rezervasyon bildirimi yeterli)
+      const isPaymentEndpoint = url.includes('/payments');
+      
+      // Notification göster (GET hariç tüm istekler için, payment hariç)
+      if (apiResponse.message && method && ['post', 'put', 'delete', 'patch'].includes(method) && !isPaymentEndpoint) {
         showApiNotification(apiResponse);
       }
       
@@ -39,25 +54,35 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     // Hata durumunda
-    if (error.response?.data) {
-      const errorData = error.response.data;
-      
-      // ApiResponse formatındaysa
-      if (errorData.success !== undefined) {
-        showApiNotification(errorData);
+    const url = error.config?.url || '';
+    const isPaymentEndpoint = url.includes('/payments');
+    const isCustomerLookup = url.includes('/customers/tc/') || url.includes('/customers/') && error.config?.method === 'get';
+    const isAuthRegister = url.includes('/auth/register');
+    
+    // Payment, customer lookup ve auth register endpoint'leri için hata bildirimi gösterme
+    if (!isPaymentEndpoint && !isCustomerLookup && !isAuthRegister) {
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // ApiResponse formatındaysa
+        if (errorData.success !== undefined) {
+          showApiNotification(errorData);
+        } else {
+          // Standart hata mesajı
+          showApiNotification({
+            success: false,
+            message: errorData.message || error.message || 'Bir hata oluştu',
+          });
+        }
       } else {
-        // Standart hata mesajı
+        // Network error veya bağlantı hatası
         showApiNotification({
           success: false,
-          message: errorData.message || error.message || 'Bir hata oluştu',
+          message: error.message || 'Bağlantı hatası. Backend çalışıyor mu?',
         });
       }
-    } else {
-      showApiNotification({
-        success: false,
-        message: error.message || 'Bağlantı hatası. Backend çalışıyor mu?',
-      });
     }
+    // Payment, customer lookup ve auth register endpoint'leri için hiçbir bildirim gösterme
     
     return Promise.reject(error);
   }

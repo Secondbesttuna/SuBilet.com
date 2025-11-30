@@ -111,10 +111,10 @@ public class DataInitializer {
             // ========================================
             // ÖRNEK MÜŞTERİLER
             // ========================================
-            Customer c1 = createCustomer("12345678901", "Ahmet Yılmaz", "1990-05-15", "Erkek", "ahmet.yilmaz@example.com", "05321234567");
-            Customer c2 = createCustomer("12345678902", "Ayşe Demir", "1988-08-20", "Kadın", "ayse.demir@example.com", "05339876543");
-            Customer c3 = createCustomer("12345678903", "Mehmet Kaya", "1995-03-10", "Erkek", "mehmet.kaya@example.com", "05357654321");
-            Customer c4 = createCustomer("12345678904", "Fatma Şahin", "1992-11-25", "Kadın", "fatma.sahin@example.com", "05441234567");
+            Customer c1 = createCustomer("ahmet123", "password123", "12345678901", "Ahmet Yılmaz", "1990-05-15", "Erkek", "ahmet.yilmaz@example.com", "05321234567");
+            Customer c2 = createCustomer("ayse456", "password123", "12345678902", "Ayşe Demir", "1988-08-20", "Kadın", "ayse.demir@example.com", "05339876543");
+            Customer c3 = createCustomer("mehmet789", "password123", "12345678903", "Mehmet Kaya", "1995-03-10", "Erkek", "mehmet.kaya@example.com", "05357654321");
+            Customer c4 = createCustomer("fatma012", "password123", "12345678904", "Fatma Şahin", "1992-11-25", "Kadın", "fatma.sahin@example.com", "05441234567");
 
             customerRepository.save(c1);
             customerRepository.save(c2);
@@ -176,6 +176,18 @@ public class DataInitializer {
             flightRepository.save(createFlight(thy, ac3, ist, ayt, "2025-12-03 09:00", "2025-12-03 10:30", 1200));
 
             System.out.println("✅ 30 Uçuş eklendi");
+
+            // ========================================
+            // AKTARMALI UÇUŞLAR
+            // ========================================
+            // İstanbul'dan Ankara'ya aktarmalı uçuş (1 Aralık 2025, İzmir üzerinden)
+            Flight layoverFlight1 = createLayoverFlight(
+                thy, ac1, ist, esb, adb,
+                "2025-12-01 09:00", "2025-12-01 12:30",
+                75, 1800.0
+            );
+            flightRepository.save(layoverFlight1);
+            System.out.println("✅ 1 Aktarmalı uçuş eklendi (IST -> ADB -> ESB, 1 Aralık 2025)");
 
             // ========================================
             // ÖRNEK REZERVASYONLAR
@@ -254,8 +266,10 @@ public class DataInitializer {
         return aircraft;
     }
 
-    private Customer createCustomer(String tcNo, String isimSoyad, String dogumTarihi, String cinsiyet, String mail, String telNo) {
+    private Customer createCustomer(String username, String password, String tcNo, String isimSoyad, String dogumTarihi, String cinsiyet, String mail, String telNo) {
         Customer customer = new Customer();
+        customer.setUsername(username);
+        customer.setPassword(password);
         customer.setTcNo(tcNo);
         customer.setIsimSoyad(isimSoyad);
         customer.setDogumTarihi(LocalDate.parse(dogumTarihi));
@@ -276,6 +290,24 @@ public class DataInitializer {
         flight.setKalkisTarihi(LocalDateTime.parse(kalkis.replace(" ", "T")));
         flight.setInisTarihi(LocalDateTime.parse(inis.replace(" ", "T")));
         flight.setBasePrice(BigDecimal.valueOf(price));
+        flight.setHasLayover(false);
+        return flight;
+    }
+    
+    private Flight createLayoverFlight(Airline airline, Aircraft aircraft, Airport origin, Airport destination,
+                                       Airport layoverAirport, String kalkis, String inis,
+                                       int layoverDurationMinutes, double price) {
+        Flight flight = new Flight();
+        flight.setAirline(airline);
+        flight.setAircraft(aircraft);
+        flight.setOriginAirport(origin);
+        flight.setDestinationAirport(destination);
+        flight.setKalkisTarihi(LocalDateTime.parse(kalkis.replace(" ", "T")));
+        flight.setInisTarihi(LocalDateTime.parse(inis.replace(" ", "T")));
+        flight.setBasePrice(BigDecimal.valueOf(price));
+        flight.setHasLayover(true);
+        flight.setLayoverAirport(layoverAirport);
+        flight.setLayoverDurationMinutes(layoverDurationMinutes);
         return flight;
     }
 

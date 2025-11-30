@@ -7,8 +7,10 @@ function FlightSearch() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [flights, setFlights] = useState([]);
+  const [allFlights, setAllFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showLayoverFlights, setShowLayoverFlights] = useState(true);
 
   const originId = searchParams.get('origin');
   const destinationId = searchParams.get('destination');
@@ -18,6 +20,11 @@ function FlightSearch() {
     searchFlights();
   }, [originId, destinationId, date]);
 
+  useEffect(() => {
+    // Filtreleme değiştiğinde uçuşları yeniden filtrele
+    filterFlights();
+  }, [showLayoverFlights, allFlights]);
+
   const searchFlights = async () => {
     setLoading(true);
     setError('');
@@ -25,12 +32,20 @@ function FlightSearch() {
     try {
       const response = await FlightService.searchFlights(originId, destinationId, date);
       const flights = response.data || response.apiResponse?.data || [];
-      setFlights(Array.isArray(flights) ? flights : []);
+      setAllFlights(Array.isArray(flights) ? flights : []);
     } catch (err) {
       setError('Uçuşlar yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
       console.error('Hata:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterFlights = () => {
+    if (!showLayoverFlights) {
+      setFlights(allFlights.filter(f => !f.hasLayover));
+    } else {
+      setFlights(allFlights);
     }
   };
 
@@ -60,7 +75,6 @@ function FlightSearch() {
   };
 
   const handleBooking = (flight) => {
-    // Rezervasyon sayfasına yönlendir
     navigate(`/booking/${flight.flightId}`);
   };
 
@@ -80,6 +94,17 @@ function FlightSearch() {
         <p className="search-info">
           {flights.length} uçuş bulundu
         </p>
+        
+        <div className="filter-section">
+          <label className="filter-checkbox">
+            <input
+              type="checkbox"
+              checked={showLayoverFlights}
+              onChange={(e) => setShowLayoverFlights(e.target.checked)}
+            />
+            <span>Aktarmalı uçuşları göster</span>
+          </label>
+        </div>
       </div>
 
       {error && (
@@ -91,7 +116,6 @@ function FlightSearch() {
       <div className="flights-container">
         {flights.length === 0 && !error ? (
           <div className="no-flights">
-            <div className="no-flights-icon">✈️</div>
             <h2>Üzgünüz, uygun uçuş bulunamadı</h2>
             <p>Lütfen farklı tarih veya havalimanı seçerek tekrar deneyin.</p>
             <button onClick={() => navigate('/')} className="btn-back">
@@ -120,7 +144,11 @@ function FlightSearch() {
                         {calculateDuration(flight.kalkisTarihi, flight.inisTarihi)}
                       </div>
                       <div className="line"></div>
-                      <div className="plane-icon">✈️</div>
+                      {flight.hasLayover && flight.layoverAirport && (
+                        <div className="layover-info">
+                          Aktarma: {flight.layoverAirport.code}
+                        </div>
+                      )}
                     </div>
 
                     <div className="route-point">
@@ -152,4 +180,3 @@ function FlightSearch() {
 }
 
 export default FlightSearch;
-

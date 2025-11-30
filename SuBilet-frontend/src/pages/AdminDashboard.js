@@ -19,11 +19,13 @@ function AdminDashboard() {
   });
 
   useEffect(() => {
-    // Admin kontrolü
-    const admin = localStorage.getItem('admin');
-    if (!admin) {
+    // Admin kontrolü - sessionStorage kullan
+    const userType = sessionStorage.getItem('userType');
+    const token = sessionStorage.getItem('token');
+    
+    if (!token || userType !== 'ADMIN') {
       showWarning('Giriş Gerekli', 'Admin paneline erişmek için lütfen giriş yapın!');
-      navigate('/admin');
+      navigate('/auth');
       return;
     }
 
@@ -92,8 +94,10 @@ function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin');
-    navigate('/admin');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userType');
+    sessionStorage.removeItem('user');
+    navigate('/auth');
   };
 
   const handleCancelReservation = (reservationId, pnr) => {
