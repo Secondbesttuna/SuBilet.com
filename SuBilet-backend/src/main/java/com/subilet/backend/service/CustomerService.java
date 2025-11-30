@@ -1,7 +1,6 @@
 package com.subilet.backend.service;
 
 import com.subilet.backend.entity.Customer;
-import com.subilet.backend.exception.BadRequestException;
 import com.subilet.backend.exception.ResourceNotFoundException;
 import com.subilet.backend.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,10 @@ public class CustomerService {
     }
 
     public Customer createCustomer(Customer customer) {
-        // TC No kontrolü
-        if (customerRepository.existsByTcNo(customer.getTcNo())) {
-            throw new BadRequestException("Bu TC No ile kayıtlı bir müşteri zaten mevcut!");
+        // TC No kontrolü - varsa mevcut müşteriyi döndür
+        Optional<Customer> existing = customerRepository.findByTcNo(customer.getTcNo());
+        if (existing.isPresent()) {
+            return existing.get(); // Mevcut müşteriyi döndür
         }
         return customerRepository.save(customer);
     }

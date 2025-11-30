@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AdminService from '../services/AdminService';
 import { useNavigate } from 'react-router-dom';
+import './AdminLogin.css';
 // Bildirimler apiClient interceptor tarafından otomatik gösteriliyor
 
 function AdminLogin() {
@@ -31,36 +32,36 @@ function AdminLogin() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
-      <div style={{ padding: '40px', border: '1px solid #ccc', borderRadius: '10px', width: '350px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ textAlign: 'center', color: '#333' }}>Yönetici Girişi</h2>
+    <div className="admin-login-container">
+      <div className="admin-login-box">
+        <h2 className="admin-login-title">Yönetici Girişi</h2>
         
-        {error && <div style={{ color: 'red', textAlign: 'center', marginBottom: '10px', fontSize: '14px' }}>{error}</div>}
+        {error && <div className="admin-login-error">{error}</div>}
 
         <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{display: 'block', marginBottom: '5px'}}>Kullanıcı Adı:</label>
+          <div className="admin-login-form-group">
+            <label className="admin-login-label">Kullanıcı Adı:</label>
             <input 
               type="text" 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+              className="admin-login-input"
               placeholder="admin"
             />
           </div>
           
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{display: 'block', marginBottom: '5px'}}>Şifre:</label>
+          <div className="admin-login-form-group">
+            <label className="admin-login-label">Şifre:</label>
             <input 
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-              placeholder="12345"
+              className="admin-login-input"
+              placeholder="admin123"
             />
           </div>
 
-          <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button type="submit" className="admin-login-button">
             Giriş Yap
           </button>
         </form>

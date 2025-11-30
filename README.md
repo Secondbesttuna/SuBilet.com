@@ -47,13 +47,7 @@ Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazl
 
 ## 🚀 Projeyi Çalıştırma
 
-⚡ **[START-WITHOUT-SQL.md](START-WITHOUT-SQL.md)** - SQL'siz hemen başlat! (ÖNERİLEN)
 
-📖 **[QUICKSTART.md](QUICKSTART.md)** - MySQL ile 3 adımda başlat
-
-📚 **[SETUP.md](SETUP.md)** - Detaylı kurulum rehberi
-
-### En Hızlı Başlangıç (SQL Gereksiz!)
 
 ```bash
 # Backend (H2 in-memory DB kullanır, otomatik verilerle)
@@ -66,8 +60,6 @@ npm install
 npm start
 ```
 
-> **Not**: Backend **H2 in-memory database** ile çalışır, MySQL/PostgreSQL kurulumuna gerek yok! 
-> Veriler otomatik yüklenir: 30+ uçuş, 8 havalimanı, 4 havayolu
 
 ## 📁 Proje Yapısı
 
