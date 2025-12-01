@@ -1,8 +1,10 @@
 package com.subilet.backend.service;
 
 import com.subilet.backend.entity.Payment;
+import com.subilet.backend.entity.Reservation;
 import com.subilet.backend.exception.ResourceNotFoundException;
 import com.subilet.backend.repository.PaymentRepository;
+import com.subilet.backend.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private ReservationRepository reservationRepository;
+
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
@@ -25,6 +30,13 @@ public class PaymentService {
     }
 
     public Payment createPayment(Payment payment) {
+        // Reservation'ı veritabanından yükle
+        if (payment.getReservation() != null && payment.getReservation().getReservationId() != null) {
+            Reservation reservation = reservationRepository.findById(payment.getReservation().getReservationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Rezervasyon bulunamadı: " + payment.getReservation().getReservationId()));
+            payment.setReservation(reservation);
+        }
+
         payment.setPaymentTime(LocalDateTime.now());
         payment.setPaymentStatus("COMPLETED");
         return paymentRepository.save(payment);

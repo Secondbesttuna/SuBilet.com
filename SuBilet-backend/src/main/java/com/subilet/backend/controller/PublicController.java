@@ -117,6 +117,14 @@ public class PublicController {
         return ResponseEntity.ok(ApiResponse.success(customers));
     }
 
+    @GetMapping("/customers/{id}")
+    public ResponseEntity<ApiResponse<Customer>> getCustomerById(@PathVariable Integer id) {
+        return customerService.getCustomerById(id)
+                .map(customer -> ResponseEntity.ok(ApiResponse.success("Müşteri bulundu", customer)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("Müşteri bulunamadı")));
+    }
+
     @GetMapping("/customers/tc/{tcNo}")
     public ResponseEntity<ApiResponse<Customer>> getCustomerByTcNo(@PathVariable String tcNo) {
         return customerService.findByTcNo(tcNo)
