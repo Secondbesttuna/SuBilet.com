@@ -15,6 +15,7 @@ function Footer() {
             <li><a href="/">Ana Sayfa</a></li>
             <li><a href="/flights">Uçuşlar</a></li>
             <li><a href="/reservations">Rezervasyonlar</a></li>
+            <li><a href="/about">Hakkımızda</a></li>
           </ul>
         </div>
         <div className="footer-section">

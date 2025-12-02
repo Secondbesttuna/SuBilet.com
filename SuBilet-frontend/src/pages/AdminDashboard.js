@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal } from 'antd';
 import apiClient from '../utils/apiClient';
@@ -9,6 +9,7 @@ import './AdminDashboard.css';
 function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('flights');
+  const hasShownAuthWarning = useRef(false); // Çift bildirim önleme
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -71,14 +72,28 @@ function AdminDashboard() {
   // Sıralama state'i
   const [flightSortOrder, setFlightSortOrder] = useState('asc'); // 'asc' veya 'desc'
 
+  // Admin kontrolü - sadece bir kez çalışsın
   useEffect(() => {
-    // Admin kontrolü - sessionStorage kullan
     const userType = sessionStorage.getItem('userType');
     const token = sessionStorage.getItem('token');
     
     if (!token || userType !== 'ADMIN') {
-      showWarning('Giriş Gerekli', 'Admin paneline erişmek için lütfen giriş yapın!');
-      navigate('/auth');
+      // Çift bildirim önleme
+      if (!hasShownAuthWarning.current) {
+        hasShownAuthWarning.current = true;
+        showWarning('Giriş Gerekli', 'Admin paneline erişmek için lütfen giriş yapın!');
+        navigate('/auth');
+      }
+    }
+  }, [navigate]);
+
+  // Verileri yükle - tab veya sıralama değiştiğinde
+  useEffect(() => {
+    const userType = sessionStorage.getItem('userType');
+    const token = sessionStorage.getItem('token');
+    
+    // Admin değilse veri yükleme
+    if (!token || userType !== 'ADMIN') {
       return;
     }
 
@@ -86,7 +101,7 @@ function AdminDashboard() {
     loadStats();
     loadDropdownData();
     loadData(activeTab);
-  }, [navigate, activeTab, flightSortOrder]);
+  }, [activeTab, flightSortOrder]);
 
   const loadStats = async () => {
     try {
@@ -644,11 +659,10 @@ function AdminDashboard() {
               ➕ Yeni Uçuş Ekle
             </button>
             <button 
-              className="btn-sort" 
+              className="btn-sort-date" 
               onClick={() => setFlightSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              style={{ marginLeft: '10px', backgroundColor: '#6c757d' }}
             >
-              📅 Tarih: {flightSortOrder === 'asc' ? '↑ Artan' : '↓ Azalan'}
+              {flightSortOrder === 'asc' ? '📅 Tarih ↑' : '📅 Tarih ↓'}
             </button>
           </>
         )}

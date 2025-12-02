@@ -22,6 +22,49 @@
   margin-bottom: 20px;
 }
 
+/* Sıralama Seçenekleri */
+.sort-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.sort-label {
+  font-weight: 600;
+  color: #333;
+  margin-right: 5px;
+}
+
+.sort-btn {
+  padding: 8px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  background: white;
+  color: #64748b;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #f0f7ff;
+}
+
+.sort-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.sort-btn.active:hover {
+  background: #1d4ed8;
+}
+
 .filter-section {
   display: flex;
   justify-content: center;

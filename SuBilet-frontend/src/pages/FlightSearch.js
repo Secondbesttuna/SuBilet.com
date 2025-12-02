@@ -11,6 +11,7 @@ function FlightSearch() {
   const [seatInfoMap, setSeatInfoMap] = useState({}); // flightId -> seatInfo
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortBy, setSortBy] = useState('price'); // 'price', 'priceDesc', 'time', 'duration'
 
   const originId = searchParams.get('origin');
   const destinationId = searchParams.get('destination');
@@ -85,6 +86,29 @@ function FlightSearch() {
     navigate(`/booking/${flight.flightId}`);
   };
 
+  // Sıralanmış uçuşları hesapla
+  const getSortedFlights = () => {
+    const sorted = [...flights];
+    switch (sortBy) {
+      case 'price':
+        return sorted.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
+      case 'priceDesc':
+        return sorted.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
+      case 'time':
+        return sorted.sort((a, b) => new Date(a.kalkisTarihi) - new Date(b.kalkisTarihi));
+      case 'duration':
+        return sorted.sort((a, b) => {
+          const durationA = new Date(a.inisTarihi) - new Date(a.kalkisTarihi);
+          const durationB = new Date(b.inisTarihi) - new Date(b.kalkisTarihi);
+          return durationA - durationB;
+        });
+      default:
+        return sorted;
+    }
+  };
+
+  const sortedFlights = getSortedFlights();
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -101,6 +125,37 @@ function FlightSearch() {
         <p className="search-info">
           {flights.length} uçuş bulundu
         </p>
+        
+        {/* Sıralama Seçenekleri */}
+        {flights.length > 0 && (
+          <div className="sort-options">
+            <span className="sort-label">Sırala:</span>
+            <button 
+              className={`sort-btn ${sortBy === 'price' ? 'active' : ''}`}
+              onClick={() => setSortBy('price')}
+            >
+              💰 Fiyat (Artan)
+            </button>
+            <button 
+              className={`sort-btn ${sortBy === 'priceDesc' ? 'active' : ''}`}
+              onClick={() => setSortBy('priceDesc')}
+            >
+              💰 Fiyat (Azalan)
+            </button>
+            <button 
+              className={`sort-btn ${sortBy === 'time' ? 'active' : ''}`}
+              onClick={() => setSortBy('time')}
+            >
+              🕐 Kalkış Saati
+            </button>
+            <button 
+              className={`sort-btn ${sortBy === 'duration' ? 'active' : ''}`}
+              onClick={() => setSortBy('duration')}
+            >
+              ⏱️ Süre (Kısa)
+            </button>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -120,7 +175,7 @@ function FlightSearch() {
           </div>
         ) : (
           <div className="flights-list">
-            {flights.map(flight => {
+            {sortedFlights.map(flight => {
               const seatInfo = seatInfoMap[flight.flightId];
               return (
                 <div key={flight.flightId} className="flight-card">

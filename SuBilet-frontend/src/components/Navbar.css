@@ -8,7 +8,7 @@
   position: sticky;
   top: 0;
   z-index: 999;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-container {
@@ -16,66 +16,139 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  padding: 0 50px;
+  max-width: 1400px;
+  padding: 0 40px;
 }
 
+/* Sol Taraf - Logo */
 .navbar-logo {
   color: #fff;
   cursor: pointer;
   text-decoration: none;
-  font-size: 2rem;
-  font-weight: bold;
-  transition: transform 0.3s ease;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .navbar-logo:hover {
   transform: scale(1.05);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
-.navbar-menu {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 30px;
-}
-
-.navbar-item {
-  height: 70px;
-  display: flex;
-  align-items: center;
-}
-
+/* Navbar Link (Rezervasyonlarım vb.) */
 .navbar-link {
   color: #fff;
   text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 18px;
+  border-radius: 8px;
   transition: all 0.3s ease;
   font-weight: 500;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .navbar-link:hover {
   background-color: rgba(255, 255, 255, 0.25);
-  color: #fff;
   transform: translateY(-2px);
 }
 
-.admin-link {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+/* Admin Panel Linki */
+.navbar-link.admin-link {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.admin-link:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+.navbar-link.admin-link:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+}
+
+/* Sağ Taraf - Kullanıcı Bölümü */
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-user-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .navbar-user {
   color: #fff;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 500;
-  background-color: rgba(255, 255, 255, 0.15);
+  font-size: 0.95rem;
+  font-weight: 400;
 }
 
+.navbar-user strong {
+  font-weight: 600;
+}
+
+/* Giriş Yap Butonu */
+.btn-login {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Çıkış Yap Butonu */
+.btn-logout {
+  background: rgba(239, 68, 68, 0.8);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .navbar-container {
+    padding: 0 20px;
+  }
+
+  .navbar-logo {
+    font-size: 1.4rem;
+  }
+
+  .navbar-menu {
+    display: none;
+  }
+
+  .navbar-user {
+    display: none;
+  }
+
+  .btn-login, .btn-logout {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+}

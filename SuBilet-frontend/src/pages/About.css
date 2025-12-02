@@ -1,0 +1,381 @@
+.about-page {
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Hero Section */
+.about-hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  border-radius: 20px;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.about-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.about-title:hover {
+  transform: scale(1.02);
+}
+
+.about-subtitle {
+  font-size: 1.3rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.hint-text {
+  display: block;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Sections */
+.about-section {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.about-section h2 {
+  font-size: 1.8rem;
+  color: #1e3a8a;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #2563eb;
+  display: inline-block;
+}
+
+.about-section p {
+  color: #475569;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  margin-bottom: 15px;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: #2563eb;
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  color: #1e3a8a;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.feature-card p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Stats Section */
+.stats-section {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  color: white;
+}
+
+.stats-section h2 {
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+.stats-section p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.stat-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 25px 15px;
+  border-radius: 12px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  opacity: 1;
+}
+
+/* Partners Section */
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.partner-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.partner-card:hover {
+  background: #e2e8f0;
+  transform: scale(1.02);
+}
+
+.partner-logo {
+  font-size: 2rem;
+}
+
+.partner-name {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Easter Egg - Team Section */
+.team-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 3px dashed #f59e0b;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.team-section h2 {
+  color: #b45309;
+  border-bottom-color: #f59e0b;
+}
+
+.team-intro {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #92400e;
+}
+
+.team-photo-container {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.team-photo {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border: 5px solid white;
+}
+
+.team-photo-fallback {
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+}
+
+.team-members {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin: 30px 0;
+}
+
+.team-member {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  min-width: 150px;
+}
+
+.member-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.member-name {
+  display: block;
+  font-weight: 700;
+  color: #92400e;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.member-role {
+  font-size: 0.85rem;
+  color: #b45309;
+}
+
+.easter-egg-note {
+  text-align: center;
+  font-style: italic;
+  color: #92400e;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+/* Contact Section */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contact-info p {
+  margin: 0;
+  padding: 15px 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* CTA Section */
+.about-cta {
+  text-align: center;
+  padding: 50px 40px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 16px;
+  color: white;
+}
+
+.about-cta h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.about-cta p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 25px;
+}
+
+.btn-cta {
+  display: inline-block;
+  padding: 15px 40px;
+  background: white;
+  color: #059669;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.btn-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Easter Egg Hint Button */
+.easter-egg-hint {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn-easter-egg {
+  background: transparent;
+  border: 2px dashed #cbd5e1;
+  color: #94a3b8;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-easter-egg:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: #fef3c7;
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .about-title {
+    font-size: 2.5rem;
+  }
+
+  .about-section {
+    padding: 25px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .team-members {
+    gap: 20px;
+  }
+
+  .team-member {
+    min-width: 120px;
+    padding: 15px;
+  }
+}
+

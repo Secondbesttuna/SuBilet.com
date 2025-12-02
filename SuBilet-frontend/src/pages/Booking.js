@@ -100,9 +100,16 @@ function Booking() {
   }, [flightId, navigate]);
 
   const handleChange = (e) => {
+    let value = e.target.value;
+    
+    // Koltuk numarası için otomatik büyük harf
+    if (e.target.name === 'seatNumber') {
+      value = value.toUpperCase();
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     });
   };
 
@@ -114,11 +121,23 @@ function Booking() {
       value = value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
       if (value.length > 19) value = value.substring(0, 19);
     }
-    // Son kullanma tarihi için MM/YY formatı
+    // Son kullanma tarihi için MM/YY formatı (ay: 01-12)
     else if (e.target.name === 'expiryDate') {
       value = value.replace(/\D/g, '');
-      if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+      if (value.length >= 1) {
+        let month = value.substring(0, 2);
+        // İlk rakam 2-9 ise başına 0 ekle
+        if (value.length === 1 && parseInt(value) > 1) {
+          month = '0' + value;
+          value = month;
+        }
+        // Ay 12'den büyük olamaz
+        if (value.length >= 2) {
+          const monthNum = parseInt(month);
+          if (monthNum > 12) month = '12';
+          if (monthNum < 1) month = '01';
+          value = month + '/' + value.substring(2, 4);
+        }
       }
       if (value.length > 5) value = value.substring(0, 5);
     }
@@ -171,13 +190,21 @@ function Booking() {
   const handlePassengerSubmit = async (e) => {
     e.preventDefault();
     
+    // Koltuk numarası format kontrolü (örn: 1A, 12B, 25P - sayı + harf)
+    const seatRegex = /^[1-9][0-9]?[A-Za-z]$/;
+    const selectedSeat = formData.seatNumber.toUpperCase().trim();
+    
+    if (!seatRegex.test(selectedSeat)) {
+      showError('Geçersiz Koltuk', 'Koltuk numarası geçersiz. Lütfen "12A", "5C", "25P" gibi bir format kullanın (1-99 arası sayı + harf).');
+      return;
+    }
+    
     try {
       // Ödemeye geçmeden önce koltuk müsaitliğini kontrol et
       const occupiedSeatsResponse = await apiClient.get(`/flights/${flightId}/occupied-seats`);
       const occupiedSeats = occupiedSeatsResponse.data || occupiedSeatsResponse.apiResponse?.data || [];
       
       // Seçilen koltuk zaten alınmış mı kontrol et
-      const selectedSeat = formData.seatNumber.toUpperCase();
       if (occupiedSeats.includes(selectedSeat)) {
         showError('Koltuk Dolu', `${selectedSeat} koltuğu zaten başka bir yolcu tarafından rezerve edilmiş. Lütfen başka bir koltuk seçin.`);
         return;
@@ -507,18 +534,20 @@ function Booking() {
                 </div>
 
                 <div className="form-group">
-                  <label>Koltuk No *</label>
+                  <label>Koltuk No * (örn: 12A, 5C, 25P)</label>
                   <input
                     type="text"
                     name="seatNumber"
-                    value={formData.seatNumber}
+                    value={formData.seatNumber.toUpperCase()}
                     onChange={handleChange}
                     required
                     placeholder="12A"
-                    maxLength="4"
+                    maxLength="3"
+                    pattern="[1-9][0-9]?[A-Za-z]"
                     style={{
                       borderColor: occupiedSeats.includes(formData.seatNumber.toUpperCase()) ? '#dc3545' : undefined,
-                      backgroundColor: occupiedSeats.includes(formData.seatNumber.toUpperCase()) ? '#fff5f5' : undefined
+                      backgroundColor: occupiedSeats.includes(formData.seatNumber.toUpperCase()) ? '#fff5f5' : undefined,
+                      textTransform: 'uppercase'
                     }}
                   />
                   {occupiedSeats.includes(formData.seatNumber.toUpperCase()) && (

@@ -36,35 +36,36 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
+        {/* Sol Taraf - Logo */}
         <Link to="/" className="navbar-logo">
           ✈️ ŞUBİLET
         </Link>
-        <ul className="navbar-menu">
-          <li className="navbar-item">
-            <Link to="/" className="navbar-link">Ana Sayfa</Link>
-          </li>
-          {user && userType === 'CUSTOMER' && (
-            <li className="navbar-item">
-              <Link to="/reservations" className="navbar-link">Rezervasyonlarım</Link>
-            </li>
-          )}
-          {!user && (
-            <li className="navbar-item">
-              <Link to="/auth" className="navbar-link">Giriş Yap / Kayıt Ol</Link>
-            </li>
-          )}
-        </ul>
 
-        <div className="navbar-actions">
-          {user && (
-            <>
+        {/* Sağ Taraf - Tüm Aksiyonlar */}
+        <div className="navbar-right">
+          {user ? (
+            <div className="navbar-user-section">
+              {userType === 'CUSTOMER' && (
+                <Link to="/reservations" className="navbar-link">
+                  📋 Rezervasyonlarım
+                </Link>
+              )}
+              {userType === 'ADMIN' && (
+                <Link to="/admin-dashboard" className="navbar-link admin-link">
+                  🛡️ Admin Paneli
+                </Link>
+              )}
               <span className="navbar-user">
-                Hoş geldin, {user.isimSoyad || user.fullName || user.username}
+                👋 Hoş geldin, <strong>{user.isimSoyad || user.fullName || user.username}</strong>
               </span>
-              <button onClick={handleLogout} className="navbar-link" style={{background: 'transparent', border: 'none', cursor: 'pointer'}}>
+              <button onClick={handleLogout} className="btn-logout">
                 Çıkış Yap
               </button>
-            </>
+            </div>
+          ) : (
+            <Link to="/auth" className="btn-login">
+              Giriş Yap / Kayıt Ol
+            </Link>
           )}
         </div>
       </div>

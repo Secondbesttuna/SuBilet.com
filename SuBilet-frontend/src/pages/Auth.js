@@ -77,6 +77,17 @@ function Auth() {
         }
       }
 
+      // Telefon numarası format kontrolü (Türkiye formatı: 05XX XXX XX XX)
+      if (userType === 'customer' && customerForm.telNo) {
+        const phoneRegex = /^(05)[0-9]{9}$/;
+        const cleanPhone = customerForm.telNo.replace(/\s/g, '');
+        if (!phoneRegex.test(cleanPhone)) {
+          setError('Geçersiz telefon numarası. Lütfen 05XX XXX XX XX formatında girin (örn: 05321234567)');
+          setLoading(false);
+          return;
+        }
+      }
+
       let response;
       if (userType === 'customer') {
         response = await AuthService.registerCustomer(customerForm);
@@ -310,13 +321,15 @@ function Auth() {
               </div>
 
               <div className="form-group">
-                <label>Telefon</label>
+                <label>Telefon (05XX XXX XX XX)</label>
                 <input
                   type="tel"
                   name="telNo"
                   value={customerForm.telNo}
                   onChange={handleCustomerFormChange}
                   placeholder="05321234567"
+                  maxLength="11"
+                  pattern="05[0-9]{9}"
                 />
               </div>
 
