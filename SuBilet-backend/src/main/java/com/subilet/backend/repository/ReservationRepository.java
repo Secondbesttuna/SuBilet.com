@@ -12,8 +12,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     
     Optional<Reservation> findByPnr(String pnr);
     
-    // Customer ve Flight ilişkilerini birlikte getir
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.customer JOIN FETCH r.flight f JOIN FETCH f.airline JOIN FETCH f.originAirport JOIN FETCH f.destinationAirport")
+    // Customer ve Flight ilişkilerini birlikte getir - user_id'ye göre sıralı
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.customer JOIN FETCH r.flight f JOIN FETCH f.airline JOIN FETCH f.originAirport JOIN FETCH f.destinationAirport ORDER BY r.customer.userId ASC")
     List<Reservation> findAllWithDetails();
     
     // ID'ye göre customer ve flight ile birlikte getir
@@ -24,8 +24,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     @Query("SELECT r FROM Reservation r JOIN FETCH r.customer JOIN FETCH r.flight f JOIN FETCH f.airline JOIN FETCH f.originAirport JOIN FETCH f.destinationAirport WHERE r.pnr = :pnr")
     Optional<Reservation> findByPnrWithDetails(String pnr);
     
-    // Customer ID'ye göre customer ve flight ile birlikte getir
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.customer JOIN FETCH r.flight f JOIN FETCH f.airline JOIN FETCH f.originAirport JOIN FETCH f.destinationAirport WHERE r.customer.userId = :customerId")
+    // Customer ID'ye göre customer ve flight ile birlikte getir - rezervasyon tarihine göre sıralı (en yeni önce)
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.customer JOIN FETCH r.flight f JOIN FETCH f.airline JOIN FETCH f.originAirport JOIN FETCH f.destinationAirport WHERE r.customer.userId = :customerId ORDER BY r.reservationDate DESC")
     List<Reservation> findByCustomerIdWithDetails(Integer customerId);
     
     // Belirli bir uçuş ve koltuk numarası için aktif rezervasyon var mı kontrol et
@@ -39,4 +39,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     // Belirli bir uçuş için aktif rezervasyon sayısını getir
     @Query("SELECT COUNT(r) FROM Reservation r WHERE r.flight.flightId = :flightId AND r.status != 'CANCELLED'")
     int countActiveReservationsByFlightId(@Param("flightId") Integer flightId);
+    
+    // Rezervasyon tarihine göre sıralı tüm rezervasyonlar (en yeni önce)
+    List<Reservation> findAllByOrderByReservationDateDesc();
+    
+    // Rezervasyon tarihine göre sıralı tüm rezervasyonlar (en eski önce)
+    List<Reservation> findAllByOrderByReservationDateAsc();
 }

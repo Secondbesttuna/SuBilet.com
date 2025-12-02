@@ -7,7 +7,9 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "flight")
+@Table(name = "flight", indexes = {
+    @Index(name = "idx_flight_kalkis_tarihi", columnList = "kalkis_tarihi"),
+    })
 public class Flight {
 
     @Id
