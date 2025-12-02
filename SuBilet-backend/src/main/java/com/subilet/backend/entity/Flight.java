@@ -43,17 +43,4 @@ public class Flight {
 
     @Column(name = "base_price")
     private BigDecimal basePrice; // Para birimleri için BigDecimal kullanılır
-    
-    // Aktarmalı uçuş mu?
-    @Column(name = "has_layover")
-    private Boolean hasLayover = false;
-    
-    // Aktarma havalimanı (varsa)
-    @ManyToOne
-    @JoinColumn(name = "layover_airport_id")
-    private Airport layoverAirport;
-    
-    // Aktarma süresi (dakika cinsinden)
-    @Column(name = "layover_duration_minutes")
-    private Integer layoverDurationMinutes;
 }

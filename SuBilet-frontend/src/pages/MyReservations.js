@@ -137,20 +137,15 @@ function MyReservations() {
                   <div className="route-section">
                     <div className="airport-info">
                       <div className="airport-code">{reservation.flight.originAirport.code}</div>
-                      <div className="city">{reservation.flight.originAirport.city}</div>
+                      <div className="city">{reservation.flight.originAirport.city?.city || 'N/A'}</div>
                       <div className="time">{formatDateTime(reservation.flight.kalkisTarihi)}</div>
                     </div>
                     <div className="arrow-container">
                       <div className="arrow">→</div>
-                      {reservation.flight.hasLayover && reservation.flight.layoverAirport && (
-                        <div className="layover-badge">
-                          Aktarma: {reservation.flight.layoverAirport.code}
-                        </div>
-                      )}
                     </div>
                     <div className="airport-info">
                       <div className="airport-code">{reservation.flight.destinationAirport.code}</div>
-                      <div className="city">{reservation.flight.destinationAirport.city}</div>
+                      <div className="city">{reservation.flight.destinationAirport.city?.city || 'N/A'}</div>
                       <div className="time">{formatDateTime(reservation.flight.inisTarihi)}</div>
                     </div>
                   </div>
@@ -159,6 +154,15 @@ function MyReservations() {
                     <div className="detail-item">
                       <span className="detail-label">Havayolu:</span>
                       <span className="detail-value">{reservation.flight.airline.name}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Uçak:</span>
+                      <span className="detail-value">
+                        ✈️ {reservation.flight.aircraft?.model || 'Bilinmiyor'}
+                        {reservation.flight.aircraft?.tailNumber && (
+                          <span style={{ color: '#666', fontSize: '0.85rem' }}> ({reservation.flight.aircraft.tailNumber})</span>
+                        )}
+                      </span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Koltuk:</span>

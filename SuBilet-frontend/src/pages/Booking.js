@@ -5,6 +5,7 @@ import CustomerService from '../services/CustomerService';
 import ReservationService from '../services/ReservationService';
 import PaymentService from '../services/PaymentService';
 import AuthService from '../services/AuthService';
+import { showError, showWarning } from '../utils/notification';
 import './Booking.css';
 
 function Booking() {
@@ -33,6 +34,8 @@ function Booking() {
   const [savedCards, setSavedCards] = useState([]);
   const [selectedCardIndex, setSelectedCardIndex] = useState(-1); // -1 = yeni kart
   const [step, setStep] = useState(1); // 1: Yolcu Bilgileri, 2: Ödeme, 3: Onay
+  const [occupiedSeats, setOccupiedSeats] = useState([]); // Dolu koltuklar
+  const [seatInfo, setSeatInfo] = useState(null); // Koltuk bilgileri
 
   useEffect(() => {
     // Kullanıcı giriş durumunu kontrol et - sessionStorage kullan
@@ -70,6 +73,26 @@ function Booking() {
       .catch(error => {
         console.error('Uçuş bilgileri yüklenemedi:', error);
         navigate('/');
+      });
+    
+    // Dolu koltukları yükle
+    apiClient.get(`/flights/${flightId}/occupied-seats`)
+      .then(response => {
+        const seats = response.data || response.apiResponse?.data || [];
+        setOccupiedSeats(seats);
+      })
+      .catch(error => {
+        console.error('Dolu koltuklar yüklenemedi:', error);
+      });
+    
+    // Koltuk bilgilerini yükle
+    apiClient.get(`/flights/${flightId}/seat-info`)
+      .then(response => {
+        const info = response.data || response.apiResponse?.data;
+        setSeatInfo(info);
+      })
+      .catch(error => {
+        console.error('Koltuk bilgileri yüklenemedi:', error);
       });
   }, [flightId, navigate]);
 
@@ -140,12 +163,47 @@ function Booking() {
 
   const handlePassengerSubmit = async (e) => {
     e.preventDefault();
-    // Sadece ödeme adımına geç
-    setStep(2);
+    
+    try {
+      // Ödemeye geçmeden önce koltuk müsaitliğini kontrol et
+      const occupiedSeatsResponse = await apiClient.get(`/flights/${flightId}/occupied-seats`);
+      const occupiedSeats = occupiedSeatsResponse.data || occupiedSeatsResponse.apiResponse?.data || [];
+      
+      // Seçilen koltuk zaten alınmış mı kontrol et
+      const selectedSeat = formData.seatNumber.toUpperCase();
+      if (occupiedSeats.includes(selectedSeat)) {
+        showError('Koltuk Dolu', `${selectedSeat} koltuğu zaten başka bir yolcu tarafından rezerve edilmiş. Lütfen başka bir koltuk seçin.`);
+        return;
+      }
+      
+      // Koltuk müsait, ödeme adımına geç
+      setStep(2);
+    } catch (error) {
+      console.error('Koltuk kontrolü hatası:', error);
+      // Hata olsa bile devam et (backend kontrolü yapacak)
+      setStep(2);
+    }
   };
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+    
+    // Kart son kullanma tarihi kontrolü
+    if (paymentData.expiryDate) {
+      const [month, year] = paymentData.expiryDate.split('/');
+      if (month && year) {
+        const expiryMonth = parseInt(month);
+        const expiryYear = parseInt('20' + year); // YY -> 20YY
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1; // 0-indexed
+        const currentYear = now.getFullYear();
+        
+        if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+          showError('Geçersiz Kart', 'Kartınızın son kullanma tarihi geçmiş. Lütfen geçerli bir kart kullanın.');
+          return;
+        }
+      }
+    }
     
     try {
       // Önce müşteri var mı kontrol et veya giriş yapmış kullanıcıyı kullan
@@ -305,19 +363,52 @@ function Booking() {
             <div className="route">
               <div className="route-point">
                 <div className="airport-code">{flight.originAirport.code}</div>
-                <div className="city">{flight.originAirport.city}</div>
+                <div className="city">{flight.originAirport.city?.city || 'N/A'}</div>
                 <div className="time">{formatDateTime(flight.kalkisTarihi)}</div>
               </div>
               <div className="route-arrow">→</div>
               <div className="route-point">
                 <div className="airport-code">{flight.destinationAirport.code}</div>
-                <div className="city">{flight.destinationAirport.city}</div>
+                <div className="city">{flight.destinationAirport.city?.city || 'N/A'}</div>
                 <div className="time">{formatDateTime(flight.inisTarihi)}</div>
               </div>
             </div>
             <div className="price-box">
               <span className="price-label">Toplam:</span>
               <span className="price-value">{formatPrice(flight.basePrice)}</span>
+            </div>
+            
+            {/* Uçak ve Koltuk Bilgileri */}
+            <div className="aircraft-seat-info" style={{ marginTop: '15px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <span style={{ fontSize: '1.2rem', marginRight: '10px' }}>✈️</span>
+                <div>
+                  <strong>Uçak:</strong> {flight.aircraft?.model || seatInfo?.aircraftModel || 'Bilinmiyor'}
+                  {(flight.aircraft?.tailNumber || seatInfo?.aircraftTailNumber) && (
+                    <span style={{ color: '#666', marginLeft: '8px' }}>
+                      ({flight.aircraft?.tailNumber || seatInfo?.aircraftTailNumber})
+                    </span>
+                  )}
+                </div>
+              </div>
+              {seatInfo && (
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                  <div>
+                    <span style={{ color: '#666' }}>Toplam Koltuk:</span>{' '}
+                    <strong>{seatInfo.totalSeats}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: '#666' }}>Dolu:</span>{' '}
+                    <strong style={{ color: '#dc3545' }}>{seatInfo.occupiedSeats}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: '#666' }}>Müsait:</span>{' '}
+                    <strong style={{ color: seatInfo.availableSeats > 10 ? '#28a745' : seatInfo.availableSeats > 0 ? '#ffc107' : '#dc3545' }}>
+                      {seatInfo.availableSeats}
+                    </strong>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -413,9 +504,25 @@ function Booking() {
                     onChange={handleChange}
                     required
                     placeholder="12A"
-                    maxLength="3"
+                    maxLength="4"
+                    style={{
+                      borderColor: occupiedSeats.includes(formData.seatNumber.toUpperCase()) ? '#dc3545' : undefined,
+                      backgroundColor: occupiedSeats.includes(formData.seatNumber.toUpperCase()) ? '#fff5f5' : undefined
+                    }}
                   />
-                  <small>Örn: 12A, 15C, 20F</small>
+                  {occupiedSeats.includes(formData.seatNumber.toUpperCase()) && (
+                    <small style={{ color: '#dc3545', fontWeight: 'bold' }}>
+                      ⚠️ Bu koltuk zaten rezerve edilmiş! Lütfen başka bir koltuk seçin.
+                    </small>
+                  )}
+                  {!occupiedSeats.includes(formData.seatNumber.toUpperCase()) && (
+                    <small>Örn: 12A, 15C, 20F</small>
+                  )}
+                  {occupiedSeats.length > 0 && (
+                    <div className="occupied-seats-info" style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px', fontSize: '0.85rem' }}>
+                      <strong>Dolu Koltuklar:</strong> {occupiedSeats.join(', ') || 'Henüz rezervasyon yok'}
+                    </div>
+                  )}
                 </div>
 
                 <button type="submit" className="btn-continue">

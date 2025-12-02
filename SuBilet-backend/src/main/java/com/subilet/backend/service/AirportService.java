@@ -1,8 +1,10 @@
 package com.subilet.backend.service;
 
 import com.subilet.backend.entity.Airport;
+import com.subilet.backend.entity.City;
 import com.subilet.backend.exception.ResourceNotFoundException;
 import com.subilet.backend.repository.AirportRepository;
+import com.subilet.backend.repository.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,9 @@ public class AirportService {
 
     @Autowired
     private AirportRepository airportRepository;
+
+    @Autowired
+    private CityRepository cityRepository;
 
     public List<Airport> getAllAirports() {
         return airportRepository.findAll();
@@ -30,6 +35,12 @@ public class AirportService {
     }
 
     public Airport createAirport(Airport airport) {
+        // City ilişkisini veritabanından yükle
+        if (airport.getCity() != null && airport.getCity().getCityId() != null) {
+            City city = cityRepository.findById(airport.getCity().getCityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Şehir bulunamadı"));
+            airport.setCity(city);
+        }
         return airportRepository.save(airport);
     }
 
@@ -39,9 +50,13 @@ public class AirportService {
 
         airport.setCode(airportDetails.getCode());
         airport.setName(airportDetails.getName());
-        airport.setCity(airportDetails.getCity());
-        airport.setCountry(airportDetails.getCountry());
-        airport.setTimeZone(airportDetails.getTimeZone());
+        
+        // City ilişkisini veritabanından yükle
+        if (airportDetails.getCity() != null && airportDetails.getCity().getCityId() != null) {
+            City city = cityRepository.findById(airportDetails.getCity().getCityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Şehir bulunamadı"));
+            airport.setCity(city);
+        }
 
         return airportRepository.save(airport);
     }

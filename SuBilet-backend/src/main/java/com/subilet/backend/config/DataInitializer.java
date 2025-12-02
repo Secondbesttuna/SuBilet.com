@@ -6,70 +6,102 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Configuration
 public class DataInitializer {
 
-    private final Random random = new Random(42); // Sabit seed ile tekrarlanabilir sonuçlar
-
     @Bean
     CommandLineRunner initDatabase(
             AdminRepository adminRepository,
+            CityRepository cityRepository,
             AirportRepository airportRepository,
             AirlineRepository airlineRepository,
-            AircraftRepository aircraftRepository,
-            CustomerRepository customerRepository,
-            FlightRepository flightRepository,
-            ReservationRepository reservationRepository,
-            PaymentRepository paymentRepository) {
+            AircraftTypeRepository aircraftTypeRepository,
+            CustomerRepository customerRepository) {
 
         return args -> {
+            // Veritabanı boş mu kontrol et - Admin tablosu boşsa başlangıç verilerini yükle
+            if (adminRepository.count() > 0) {
+                System.out.println("ℹ️ Veritabanında veri mevcut. DataInitializer atlanıyor...");
+                return;
+            }
+
             System.out.println("🚀 ŞUBİLET - Başlangıç Verileri Yükleniyor...");
-            System.out.println("🧹 Temiz başlangıç - Her restart'ta DataInitializer'dan veriler yükleniyor...");
 
             // ========================================
-            // ADMIN KULLANICILARI
+            // ADMIN KULLANICISI (1 Admin)
             // ========================================
-            Admin admin1 = new Admin();
-            admin1.setUsername("admin");
-            admin1.setPassword("admin123");
-            admin1.setFullName("Sistem Yöneticisi");
-            adminRepository.save(admin1);
+            Admin admin = new Admin();
+            admin.setUsername("admin");
+            admin.setPassword("admin123");
+            admin.setFullName("Sistem Yöneticisi");
+            adminRepository.save(admin);
 
-            Admin admin2 = new Admin();
-            admin2.setUsername("cansu");
-            admin2.setPassword("123456");
-            admin2.setFullName("Saadet Cansu Baktıroğlu");
-            adminRepository.save(admin2);
+            System.out.println("✅ 1 Admin kullanıcı eklendi (admin / admin123)");
 
-            System.out.println("✅ 2 Admin kullanıcı eklendi");
+            // ========================================
+            // ŞEHİRLER (Türkiye'nin 81 İli)
+            // ========================================
+            String[] turkiyeIlleri = {
+                "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin",
+                "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa",
+                "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan",
+                "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta",
+                "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir",
+                "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla",
+                "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt",
+                "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak",
+                "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman",
+                "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce"
+            };
+            
+            List<City> allCities = new ArrayList<>();
+            for (String ilAdi : turkiyeIlleri) {
+                City city = createCity(ilAdi, "Türkiye", "Europe/Istanbul");
+                cityRepository.save(city);
+                allCities.add(city);
+            }
+            
+            // Havalimanı oluşturmak için sık kullanılan şehirleri referans olarak al
+            City istanbul = allCities.stream().filter(c -> c.getCity().equals("İstanbul")).findFirst().orElse(allCities.get(33));
+            City ankara = allCities.stream().filter(c -> c.getCity().equals("Ankara")).findFirst().orElse(allCities.get(5));
+            City antalya = allCities.stream().filter(c -> c.getCity().equals("Antalya")).findFirst().orElse(allCities.get(6));
+            City izmir = allCities.stream().filter(c -> c.getCity().equals("İzmir")).findFirst().orElse(allCities.get(34));
+            City mugla = allCities.stream().filter(c -> c.getCity().equals("Muğla")).findFirst().orElse(allCities.get(47));
+            City trabzon = allCities.stream().filter(c -> c.getCity().equals("Trabzon")).findFirst().orElse(allCities.get(60));
+            City gaziantep = allCities.stream().filter(c -> c.getCity().equals("Gaziantep")).findFirst().orElse(allCities.get(26));
+            City adana = allCities.stream().filter(c -> c.getCity().equals("Adana")).findFirst().orElse(allCities.get(0));
+            City van = allCities.stream().filter(c -> c.getCity().equals("Van")).findFirst().orElse(allCities.get(64));
+            City erzurum = allCities.stream().filter(c -> c.getCity().equals("Erzurum")).findFirst().orElse(allCities.get(24));
+            City diyarbakir = allCities.stream().filter(c -> c.getCity().equals("Diyarbakır")).findFirst().orElse(allCities.get(20));
+            City konya = allCities.stream().filter(c -> c.getCity().equals("Konya")).findFirst().orElse(allCities.get(41));
+            City samsun = allCities.stream().filter(c -> c.getCity().equals("Samsun")).findFirst().orElse(allCities.get(54));
+
+            System.out.println("✅ " + allCities.size() + " Şehir eklendi (Türkiye'nin 81 ili)");
 
             // ========================================
             // HAVALİMANLARI (15 Havalimanı)
             // ========================================
             List<Airport> airports = new ArrayList<>();
             
-            airports.add(createAirport("IST", "İstanbul Havalimanı", "İstanbul", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("SAW", "Sabiha Gökçen Havalimanı", "İstanbul", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("ESB", "Esenboğa Havalimanı", "Ankara", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("AYT", "Antalya Havalimanı", "Antalya", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("ADB", "Adnan Menderes Havalimanı", "İzmir", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("DLM", "Dalaman Havalimanı", "Muğla", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("BJV", "Milas-Bodrum Havalimanı", "Muğla", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("TZX", "Trabzon Havalimanı", "Trabzon", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("GZT", "Gaziantep Havalimanı", "Gaziantep", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("ADA", "Adana Havalimanı", "Adana", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("VAN", "Ferit Melen Havalimanı", "Van", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("ERZ", "Erzurum Havalimanı", "Erzurum", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("DIY", "Diyarbakır Havalimanı", "Diyarbakır", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("KYA", "Konya Havalimanı", "Konya", "Türkiye", "Europe/Istanbul"));
-            airports.add(createAirport("SZF", "Samsun-Çarşamba Havalimanı", "Samsun", "Türkiye", "Europe/Istanbul"));
+            airports.add(createAirport("IST", "İstanbul Havalimanı", istanbul));
+            airports.add(createAirport("SAW", "Sabiha Gökçen Havalimanı", istanbul));
+            airports.add(createAirport("ESB", "Esenboğa Havalimanı", ankara));
+            airports.add(createAirport("AYT", "Antalya Havalimanı", antalya));
+            airports.add(createAirport("ADB", "Adnan Menderes Havalimanı", izmir));
+            airports.add(createAirport("DLM", "Dalaman Havalimanı", mugla));
+            airports.add(createAirport("BJV", "Milas-Bodrum Havalimanı", mugla));
+            airports.add(createAirport("TZX", "Trabzon Havalimanı", trabzon));
+            airports.add(createAirport("GZT", "Gaziantep Havalimanı", gaziantep));
+            airports.add(createAirport("ADA", "Adana Havalimanı", adana));
+            airports.add(createAirport("VAN", "Ferit Melen Havalimanı", van));
+            airports.add(createAirport("ERZ", "Erzurum Havalimanı", erzurum));
+            airports.add(createAirport("DIY", "Diyarbakır Havalimanı", diyarbakir));
+            airports.add(createAirport("KYA", "Konya Havalimanı", konya));
+            airports.add(createAirport("SZF", "Samsun-Çarşamba Havalimanı", samsun));
 
             for (Airport airport : airports) {
                 airportRepository.save(airport);
@@ -77,439 +109,140 @@ public class DataInitializer {
             System.out.println("✅ " + airports.size() + " Havalimanı eklendi");
 
             // ========================================
-            // HAVAYOLU ŞİRKETLERİ (4 Havayolu)
+            // HAVAYOLU ŞİRKETLERİ (4 Havayolu - ucakSayisi=0, yillikUcusSayisi)
             // ========================================
-            Airline thy = createAirline("Türk Hava Yolları", "Türkiye", 1500, 350, "TK", "THY");
-            Airline pegasus = createAirline("Pegasus Hava Yolları", "Türkiye", 800, 100, "PC", "PGT");
-            Airline anadolu = createAirline("AnadoluJet", "Türkiye", 600, 80, "TJ", "AJA");
-            Airline sun = createAirline("SunExpress", "Türkiye", 400, 60, "XQ", "SXS");
+            // Yıllık uçuş sayıları gerçekçi değerler
+            Airline thy = createAirline("Türk Hava Yolları", "Türkiye", 400000, 0, "TK", "THY");
+            Airline pegasus = createAirline("Pegasus Hava Yolları", "Türkiye", 180000, 0, "PC", "PGT");
+            Airline anadolu = createAirline("AnadoluJet", "Türkiye", 120000, 0, "TJ", "AJA");
+            Airline sun = createAirline("SunExpress", "Türkiye", 80000, 0, "XQ", "SXS");
 
             airlineRepository.save(thy);
             airlineRepository.save(pegasus);
             airlineRepository.save(anadolu);
             airlineRepository.save(sun);
 
-            System.out.println("✅ 4 Havayolu şirketi eklendi");
+            System.out.println("✅ 4 Havayolu şirketi eklendi (uçak sayısı: 0 - manuel eklenecek)");
 
             // ========================================
-            // UÇAKLAR (12 Uçak - Her havayoluna 3'er)
+            // UÇAK TÜRLERİ (20 Farklı Model)
             // ========================================
-            List<Aircraft> aircrafts = new ArrayList<>();
+            List<AircraftType> aircraftTypes = new ArrayList<>();
             
-            // THY Uçakları (3 adet)
-            aircrafts.add(createAircraft(thy, "Boeing 737-800", "TC-JFU", 151, "Boeing"));
-            aircrafts.add(createAircraft(thy, "Airbus A321", "TC-JRB", 180, "Airbus"));
-            aircrafts.add(createAircraft(thy, "Boeing 777-300ER", "TC-JJU", 349, "Boeing"));
+            // Boeing Modelleri
+            aircraftTypes.add(createAircraftType("Boeing 737-800", "Boeing", 189, 5765, 842));
+            aircraftTypes.add(createAircraftType("Boeing 737 MAX 8", "Boeing", 178, 6570, 839));
+            aircraftTypes.add(createAircraftType("Boeing 737 MAX 9", "Boeing", 193, 6570, 839));
+            aircraftTypes.add(createAircraftType("Boeing 777-300ER", "Boeing", 396, 13650, 905));
+            aircraftTypes.add(createAircraftType("Boeing 787-9 Dreamliner", "Boeing", 296, 14140, 903));
+            aircraftTypes.add(createAircraftType("Boeing 767-300ER", "Boeing", 269, 11070, 850));
+            aircraftTypes.add(createAircraftType("Boeing 757-200", "Boeing", 200, 7222, 850));
             
-            // Pegasus Uçakları (3 adet)
-            aircrafts.add(createAircraft(pegasus, "Boeing 737-800", "TC-CPE", 189, "Boeing"));
-            aircrafts.add(createAircraft(pegasus, "Airbus A320neo", "TC-NBA", 186, "Airbus"));
-            aircrafts.add(createAircraft(pegasus, "Boeing 737 MAX 8", "TC-RBA", 189, "Boeing"));
+            // Airbus Modelleri
+            aircraftTypes.add(createAircraftType("Airbus A320", "Airbus", 180, 6100, 840));
+            aircraftTypes.add(createAircraftType("Airbus A320neo", "Airbus", 186, 6300, 840));
+            aircraftTypes.add(createAircraftType("Airbus A321", "Airbus", 220, 5950, 840));
+            aircraftTypes.add(createAircraftType("Airbus A321neo", "Airbus", 244, 7400, 840));
+            aircraftTypes.add(createAircraftType("Airbus A330-300", "Airbus", 335, 11750, 870));
+            aircraftTypes.add(createAircraftType("Airbus A350-900", "Airbus", 325, 15000, 903));
+            aircraftTypes.add(createAircraftType("Airbus A380-800", "Airbus", 555, 15200, 903));
             
-            // AnadoluJet Uçakları (3 adet)
-            aircrafts.add(createAircraft(anadolu, "Boeing 737-800", "TC-JZG", 189, "Boeing"));
-            aircrafts.add(createAircraft(anadolu, "Airbus A321", "TC-JRM", 180, "Airbus"));
-            aircrafts.add(createAircraft(anadolu, "Boeing 737-800", "TC-JZH", 189, "Boeing"));
+            // Embraer Modelleri
+            aircraftTypes.add(createAircraftType("Embraer E190", "Embraer", 106, 4537, 829));
+            aircraftTypes.add(createAircraftType("Embraer E195-E2", "Embraer", 146, 4815, 833));
             
-            // SunExpress Uçakları (3 adet)
-            aircrafts.add(createAircraft(sun, "Boeing 737-800", "TC-SNY", 189, "Boeing"));
-            aircrafts.add(createAircraft(sun, "Boeing 737 MAX 8", "TC-SNA", 189, "Boeing"));
-            aircrafts.add(createAircraft(sun, "Boeing 737-800", "TC-SNZ", 189, "Boeing"));
+            // Bombardier Modelleri
+            aircraftTypes.add(createAircraftType("Bombardier CRJ900", "Bombardier", 90, 2956, 830));
+            aircraftTypes.add(createAircraftType("Bombardier Q400", "Bombardier", 78, 2040, 667));
+            
+            // ATR Modelleri
+            aircraftTypes.add(createAircraftType("ATR 72-600", "ATR", 78, 1528, 510));
+            aircraftTypes.add(createAircraftType("ATR 42-600", "ATR", 48, 1326, 510));
 
-            for (Aircraft aircraft : aircrafts) {
-                aircraftRepository.save(aircraft);
+            for (AircraftType type : aircraftTypes) {
+                aircraftTypeRepository.save(type);
             }
-            System.out.println("✅ " + aircrafts.size() + " Uçak eklendi");
+            System.out.println("✅ " + aircraftTypes.size() + " Uçak türü eklendi");
 
             // ========================================
-            // ÖRNEK MÜŞTERİLER (5 Müşteri)
+            // ÖRNEK MÜŞTERİ (1 Müşteri - Ahmet Yılmaz)
             // ========================================
-            List<Customer> customers = new ArrayList<>();
-            
-            customers.add(createCustomer("ahmet123", "password123", "12345678901", "Ahmet Yılmaz", "1990-05-15", "Erkek", "ahmet.yilmaz@example.com", "05321234567"));
-            customers.add(createCustomer("ayse456", "password123", "12345678902", "Ayşe Demir", "1988-08-20", "Kadın", "ayse.demir@example.com", "05339876543"));
-            customers.add(createCustomer("mehmet789", "password123", "12345678903", "Mehmet Kaya", "1995-03-10", "Erkek", "mehmet.kaya@example.com", "05357654321"));
-            customers.add(createCustomer("fatma012", "password123", "12345678904", "Fatma Şahin", "1992-11-25", "Kadın", "fatma.sahin@example.com", "05441234567"));
-            customers.add(createCustomer("ali345", "password123", "12345678905", "Ali Çelik", "1987-07-12", "Erkek", "ali.celik@example.com", "05359876543"));
+            Customer ahmet = createCustomer("ahmet", "ahmet123", "12345678901", "Ahmet Yılmaz", 
+                "1990-05-15", "Erkek", "ahmet.yilmaz@example.com", "05321234567");
+            customerRepository.save(ahmet);
 
-            for (Customer customer : customers) {
-                customerRepository.save(customer);
-            }
-            System.out.println("✅ " + customers.size() + " Örnek müşteri eklendi");
+            System.out.println("✅ 1 Örnek müşteri eklendi (ahmet / ahmet123)");
 
             // ========================================
-            // UÇUŞLAR (250 Direkt Uçuş)
+            // UÇUŞLAR - BOŞ (Manuel eklenecek)
             // ========================================
-            List<Flight> flights = new ArrayList<>();
-            
-            // Fiyat aralıkları (TL)
-            double[] thyPrices = {850, 950, 1050, 1150, 1250, 1350, 1450, 1550};
-            double[] pegasusPrices = {550, 650, 750, 850, 950, 1050, 1150};
-            double[] anadoluPrices = {450, 550, 650, 750, 850, 950};
-            double[] sunPrices = {500, 600, 700, 800, 900, 1000};
-
-            // Uçak listeleri
-            Aircraft[] thyAircrafts = {aircrafts.get(0), aircrafts.get(1), aircrafts.get(2)};
-            Aircraft[] pegasusAircrafts = {aircrafts.get(3), aircrafts.get(4), aircrafts.get(5)};
-            Aircraft[] anadoluAircrafts = {aircrafts.get(6), aircrafts.get(7), aircrafts.get(8)};
-            Aircraft[] sunAircrafts = {aircrafts.get(9), aircrafts.get(10), aircrafts.get(11)};
-
-            // 1-10 Aralık 2025 için uçuşlar (toplam 250 direkt uçuş)
-            int flightCount = 0;
-            int targetDirectFlights = 250;
-            
-            for (int day = 1; day <= 10 && flightCount < targetDirectFlights; day++) {
-                String dateStr = String.format("2025-12-%02d", day);
-                
-                // Her havalimanından diğer havalimanlarına uçuşlar oluştur
-                for (int i = 0; i < airports.size() && flightCount < targetDirectFlights; i++) {
-                    Airport origin = airports.get(i);
-                    
-                    // Her havalimanından 1-2 farklı destinasyona uçuş (250'yi geçmemek için)
-                    int flightsPerOrigin = (i < 5) ? 2 : 1; // İlk 5 havalimanı daha fazla
-                    
-                    for (int j = 0; j < flightsPerOrigin && flightCount < targetDirectFlights; j++) {
-                        // Aynı havalimanına gitme
-                        int destIndex = (i + j + 1) % airports.size();
-                        if (destIndex == i) {
-                            destIndex = (destIndex + 1) % airports.size();
-                        }
-                        Airport destination = airports.get(destIndex);
-                        
-                        // Havayolu seçimi (rastgele)
-                        int airlineIndex = random.nextInt(4);
-                        Airline airline;
-                        Aircraft aircraft;
-                        double price;
-                        
-                        switch (airlineIndex) {
-                            case 0:
-                                airline = thy;
-                                aircraft = thyAircrafts[random.nextInt(thyAircrafts.length)];
-                                price = thyPrices[random.nextInt(thyPrices.length)];
-                                break;
-                            case 1:
-                                airline = pegasus;
-                                aircraft = pegasusAircrafts[random.nextInt(pegasusAircrafts.length)];
-                                price = pegasusPrices[random.nextInt(pegasusPrices.length)];
-                                break;
-                            case 2:
-                                airline = anadolu;
-                                aircraft = anadoluAircrafts[random.nextInt(anadoluAircrafts.length)];
-                                price = anadoluPrices[random.nextInt(anadoluPrices.length)];
-                                break;
-                            default:
-                                airline = sun;
-                                aircraft = sunAircrafts[random.nextInt(sunAircrafts.length)];
-                                price = sunPrices[random.nextInt(sunPrices.length)];
-                                break;
-                        }
-                        
-                        // Uçuş saatleri (06:00 - 22:00 arası)
-                        int hour = 6 + (j * 4) + random.nextInt(2);
-                        if (hour > 22) hour = 6 + random.nextInt(16);
-                        int minute = random.nextInt(4) * 15; // 0, 15, 30, 45
-                        
-                        // Uçuş süresi hesapla (mesafeye göre yaklaşık)
-                        int flightDurationMinutes = calculateFlightDuration(origin, destination);
-                        int arrivalHour = hour + (flightDurationMinutes / 60);
-                        int arrivalMinute = minute + (flightDurationMinutes % 60);
-                        if (arrivalMinute >= 60) {
-                            arrivalHour++;
-                            arrivalMinute -= 60;
-                        }
-                        
-                        String kalkis = String.format("%s %02d:%02d", dateStr, hour, minute);
-                        String inis = String.format("%s %02d:%02d", dateStr, arrivalHour, arrivalMinute);
-                        
-                        try {
-                            flights.add(createFlight(airline, aircraft, origin, destination, kalkis, inis, price));
-                            flightCount++;
-                        } catch (Exception e) {
-                            System.err.println("Uçuş oluşturulurken hata: " + e.getMessage());
-                        }
-                    }
-                }
-            }
-
-            // Tüm direkt uçuşları kaydet
-            for (Flight flight : flights) {
-                flightRepository.save(flight);
-            }
-            System.out.println("✅ " + flights.size() + " Direkt uçuş eklendi");
+            System.out.println("✅ Uçuşlar boş bırakıldı (admin panelinden eklenecek)");
 
             // ========================================
-            // AKTARMALI UÇUŞLAR (50 Aktarmalı Uçuş)
+            // REZERVASYONLAR - BOŞ (Manuel eklenecek)
             // ========================================
-            List<Flight> layoverFlights = new ArrayList<>();
-            int layoverCount = 0;
-            int targetLayoverFlights = 50;
-            
-            // 1-10 Aralık için aktarmalı uçuşlar (günde 5 aktarmalı)
-            for (int day = 1; day <= 10 && layoverCount < targetLayoverFlights; day++) {
-                String dateStr = String.format("2025-12-%02d", day);
-                
-                for (int k = 0; k < 5 && layoverCount < targetLayoverFlights; k++) {
-                    try {
-                        // Rastgele origin ve destination seç
-                        int originIdx = random.nextInt(airports.size());
-                        int destIdx = random.nextInt(airports.size());
-                        
-                        // Aynı havalimanına gitme
-                        while (destIdx == originIdx) {
-                            destIdx = random.nextInt(airports.size());
-                        }
-                        
-                        // Aktarma havalimanı seç (origin ve destination'dan farklı)
-                        int layoverIdx = random.nextInt(airports.size());
-                        int attempts = 0;
-                        while ((layoverIdx == originIdx || layoverIdx == destIdx) && attempts < 10) {
-                            layoverIdx = random.nextInt(airports.size());
-                            attempts++;
-                        }
-                        if (attempts >= 10) {
-                            continue; // Aktarma havalimanı bulunamadı, atla
-                        }
-                        
-                        Airport origin = airports.get(originIdx);
-                        Airport destination = airports.get(destIdx);
-                        Airport layover = airports.get(layoverIdx);
-                        
-                        // Havayolu seçimi
-                        int airlineIndex = random.nextInt(4);
-                        Airline airline;
-                        Aircraft aircraft;
-                        double price;
-                        
-                        switch (airlineIndex) {
-                            case 0:
-                                airline = thy;
-                                aircraft = thyAircrafts[random.nextInt(thyAircrafts.length)];
-                                price = thyPrices[random.nextInt(thyPrices.length)] * 1.5; // Aktarmalı daha pahalı
-                                break;
-                            case 1:
-                                airline = pegasus;
-                                aircraft = pegasusAircrafts[random.nextInt(pegasusAircrafts.length)];
-                                price = pegasusPrices[random.nextInt(pegasusPrices.length)] * 1.5;
-                                break;
-                            case 2:
-                                airline = anadolu;
-                                aircraft = anadoluAircrafts[random.nextInt(anadoluAircrafts.length)];
-                                price = anadoluPrices[random.nextInt(anadoluPrices.length)] * 1.5;
-                                break;
-                            default:
-                                airline = sun;
-                                aircraft = sunAircrafts[random.nextInt(sunAircrafts.length)];
-                                price = sunPrices[random.nextInt(sunPrices.length)] * 1.5;
-                                break;
-                        }
-                        
-                        // Uçuş saatleri
-                        int hour = 7 + (k * 3) + random.nextInt(2);
-                        if (hour > 20) hour = 7 + random.nextInt(13);
-                        int minute = random.nextInt(4) * 15;
-                        
-                        // Toplam uçuş süresi (origin -> layover -> destination)
-                        int totalDuration = calculateFlightDuration(origin, layover) + 
-                                           calculateFlightDuration(layover, destination) + 
-                                           90; // 90 dakika aktarma süresi
-                        
-                        int arrivalHour = hour + (totalDuration / 60);
-                        int arrivalMinute = minute + (totalDuration % 60);
-                        if (arrivalMinute >= 60) {
-                            arrivalHour++;
-                            arrivalMinute -= 60;
-                        }
-                        
-                        // Ertesi güne geçmemesi için kontrol
-                        if (arrivalHour >= 24) {
-                            arrivalHour = arrivalHour % 24;
-                        }
-                        
-                        String kalkis = String.format("%s %02d:%02d", dateStr, hour, minute);
-                        String inis = String.format("%s %02d:%02d", dateStr, arrivalHour, arrivalMinute);
-                        
-                        layoverFlights.add(createLayoverFlight(airline, aircraft, origin, destination, layover,
-                            kalkis, inis, 90, price));
-                        layoverCount++;
-                    } catch (Exception e) {
-                        System.err.println("Aktarmalı uçuş oluşturulurken hata: " + e.getMessage());
-                    }
-                }
-            }
-
-            // Aktarmalı uçuşları kaydet
-            for (Flight layoverFlight : layoverFlights) {
-                try {
-                    flightRepository.save(layoverFlight);
-                } catch (Exception e) {
-                    System.err.println("Aktarmalı uçuş kaydedilirken hata: " + e.getMessage());
-                }
-            }
-            System.out.println("✅ " + layoverFlights.size() + " Aktarmalı uçuş eklendi");
-
-            int totalFlights = flights.size() + layoverFlights.size();
-            System.out.println("✅ TOPLAM " + totalFlights + " Uçuş eklendi");
-
-            // ========================================
-            // ÖRNEK REZERVASYONLAR (250 uçuşta rezervasyon)
-            // ========================================
-            List<Reservation> reservations = new ArrayList<>();
-            List<Flight> savedFlights = flightRepository.findAll();
-            
-            // İlk 250 uçuşa rezervasyon ekle (50'sinde rezervasyon olmayacak)
-            String[] seatNumbers = {"1A", "2B", "3C", "4D", "5E", "6F", "7A", "8B", "9C", "10D", 
-                                   "11A", "12B", "13C", "14D", "15E", "16F", "17A", "18B", "19C", "20D"};
-            
-            int reservationCount = 0;
-            int maxReservations = Math.min(250, savedFlights.size());
-            
-            for (int i = 0; i < maxReservations; i++) {
-                try {
-                    Flight flight = savedFlights.get(i);
-                    if (flight == null || flight.getKalkisTarihi() == null) {
-                        continue;
-                    }
-                    
-                    Customer customer = customers.get(i % customers.size()); // Müşterileri döngüsel kullan
-                    String pnr = "PNR" + String.format("%06d", 100000 + i);
-                    
-                    // Rezervasyon tarihi (uçuştan 1-15 gün önce, güvenli bir tarih)
-                    int daysBefore = 1 + (i % 15);
-                    LocalDateTime flightDate = flight.getKalkisTarihi();
-                    LocalDateTime reservationDate = flightDate.minusDays(daysBefore);
-                    
-                    // Eğer rezervasyon tarihi çok eskiyse, uçuş tarihinden 1 gün önce yap
-                    if (reservationDate.isBefore(LocalDateTime.now().minusMonths(1))) {
-                        reservationDate = flightDate.minusDays(1);
-                    }
-                    
-                    String seat = seatNumbers[i % seatNumbers.length];
-                    Reservation reservation = createReservation(pnr, customer, flight, seat, 
-                        reservationDate.toString().replace("T", " ").substring(0, 19), "CONFIRMED");
-                    reservations.add(reservation);
-                    reservationCount++;
-                } catch (Exception e) {
-                    System.err.println("Rezervasyon oluşturulurken hata (uçuş " + i + "): " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-
-            for (Reservation reservation : reservations) {
-                try {
-                    reservationRepository.save(reservation);
-                } catch (Exception e) {
-                    System.err.println("Rezervasyon kaydedilirken hata: " + e.getMessage());
-                }
-            }
-            System.out.println("✅ " + reservations.size() + " Rezervasyon eklendi (250 uçuşta rezervasyon var, 50'sinde yok)");
-
-            // ========================================
-            // ÖRNEK ÖDEMELER
-            // ========================================
-            List<Reservation> savedReservations = reservationRepository.findAll();
-            int paymentCount = 0;
-            
-            for (Reservation reservation : savedReservations) {
-                try {
-                    if (reservation == null || reservation.getReservationDate() == null || reservation.getFlight() == null) {
-                        continue;
-                    }
-                    LocalDateTime paymentDate = reservation.getReservationDate().plusMinutes(5);
-                    Payment payment = createPayment(reservation, "Credit Card", "TRY", 
-                        reservation.getFlight().getBasePrice().doubleValue(), 
-                        paymentDate.toString().replace("T", " ").substring(0, 19), "COMPLETED");
-                    paymentRepository.save(payment);
-                    paymentCount++;
-                } catch (Exception e) {
-                    System.err.println("Ödeme oluşturulurken hata: " + e.getMessage());
-                }
-            }
-            System.out.println("✅ " + paymentCount + " Örnek ödeme eklendi");
+            System.out.println("✅ Rezervasyonlar boş bırakıldı (kullanıcılar tarafından oluşturulacak)");
 
             // ========================================
             // ÖZET
             // ========================================
             System.out.println("\n🎉 TÜM VERİLER BAŞARIYLA YÜKLENDİ!");
             System.out.println("📊 Özet:");
-            System.out.println("   - 2 Admin kullanıcı");
+            System.out.println("   - 1 Admin kullanıcı (admin / admin123)");
+            System.out.println("   - 81 Şehir (Türkiye'nin tüm illeri)");
             System.out.println("   - " + airports.size() + " Havalimanı");
-            System.out.println("   - 4 Havayolu");
-            System.out.println("   - " + aircrafts.size() + " Uçak");
-            System.out.println("   - " + customers.size() + " Müşteri");
-            System.out.println("   - " + totalFlights + " Uçuş (" + flights.size() + " direkt + " + layoverFlights.size() + " aktarmalı)");
-            System.out.println("   - " + reservations.size() + " Rezervasyon (250 uçuşta var, 50'sinde yok)");
-            System.out.println("   - " + paymentCount + " Ödeme");
-            System.out.println("\n🚀 Backend hazır! Frontend'den test edebilirsiniz.");
+            System.out.println("   - 4 Havayolu (uçak sayısı: 0)");
+            System.out.println("   - " + aircraftTypes.size() + " Uçak türü");
+            System.out.println("   - 1 Müşteri (ahmet / ahmet123)");
+            System.out.println("   - 0 Uçak (manuel eklenecek)");
+            System.out.println("   - 0 Uçuş (manuel eklenecek)");
+            System.out.println("   - 0 Rezervasyon");
+            System.out.println("\n🚀 Backend hazır!");
             System.out.println("🔑 Admin: admin / admin123");
-            System.out.println("📝 NOT: 50 uçuşta rezervasyon yok - kendiniz oluşturabilirsiniz!");
+            System.out.println("👤 Müşteri: ahmet / ahmet123");
         };
     }
 
-    // Uçuş süresi hesaplama (yaklaşık - mesafeye göre)
-    private int calculateFlightDuration(Airport origin, Airport destination) {
-        // Basit bir mesafe tahmini (gerçek mesafeye göre değil, örnek için)
-        // İstanbul merkezli düşünürsek:
-        String originCode = origin.getCode();
-        String destCode = destination.getCode();
-        
-        // Aynı şehir içi (IST <-> SAW)
-        if ((originCode.equals("IST") && destCode.equals("SAW")) || 
-            (originCode.equals("SAW") && destCode.equals("IST"))) {
-            return 45; // 45 dakika
-        }
-        
-        // Kısa mesafe (1-1.5 saat)
-        if (originCode.startsWith("I") || destCode.startsWith("I") || 
-            originCode.equals("ESB") || destCode.equals("ESB") ||
-            originCode.equals("ADB") || destCode.equals("ADB")) {
-            return 60 + (int)(Math.random() * 30); // 60-90 dakika
-        }
-        
-        // Orta mesafe (1.5-2 saat)
-        if (originCode.equals("AYT") || destCode.equals("AYT") ||
-            originCode.equals("DLM") || destCode.equals("DLM") ||
-            originCode.equals("BJV") || destCode.equals("BJV")) {
-            return 90 + (int)(Math.random() * 30); // 90-120 dakika
-        }
-        
-        // Uzun mesafe (2-3 saat)
-        return 120 + (int)(Math.random() * 60); // 120-180 dakika
+    // Helper metodlar
+    private City createCity(String city, String country, String timeZone) {
+        City cityEntity = new City();
+        cityEntity.setCity(city);
+        cityEntity.setCountry(country);
+        cityEntity.setTimeZone(timeZone);
+        return cityEntity;
     }
 
-    // Helper metodlar
-    private Airport createAirport(String code, String name, String city, String country, String timeZone) {
+    private Airport createAirport(String code, String name, City city) {
         Airport airport = new Airport();
         airport.setCode(code);
         airport.setName(name);
         airport.setCity(city);
-        airport.setCountry(country);
-        airport.setTimeZone(timeZone);
         return airport;
     }
 
-    private Airline createAirline(String name, String ulke, Integer ucusSayisi, Integer ucakSayisi, String iataCode, String icaoCode) {
+    private Airline createAirline(String name, String ulke, Integer yillikUcusSayisi, Integer ucakSayisi, String iataCode, String icaoCode) {
         Airline airline = new Airline();
         airline.setName(name);
         airline.setUlke(ulke);
-        airline.setUcusSayisi(ucusSayisi);
+        airline.setYillikUcusSayisi(yillikUcusSayisi);
         airline.setUcakSayisi(ucakSayisi);
         airline.setIataCode(iataCode);
         airline.setIcaoCode(icaoCode);
         return airline;
     }
 
-    private Aircraft createAircraft(Airline airline, String model, String tailNumber, Integer capacity, String uretici) {
-        Aircraft aircraft = new Aircraft();
-        aircraft.setAirline(airline);
-        aircraft.setModel(model);
-        aircraft.setTailNumber(tailNumber);
-        aircraft.setCapacity(capacity);
-        aircraft.setUretici(uretici);
-        return aircraft;
+    private AircraftType createAircraftType(String model, String manufacturer, int capacity, int rangeKm, int cruiseSpeedKmh) {
+        AircraftType type = new AircraftType();
+        type.setModel(model);
+        type.setManufacturer(manufacturer);
+        type.setCapacity(capacity);
+        type.setRangeKm(rangeKm);
+        type.setCruiseSpeedKmh(cruiseSpeedKmh);
+        return type;
     }
 
-    private Customer createCustomer(String username, String password, String tcNo, String isimSoyad, String dogumTarihi, String cinsiyet, String mail, String telNo) {
+    private Customer createCustomer(String username, String password, String tcNo, String isimSoyad, 
+                                    String dogumTarihi, String cinsiyet, String mail, String telNo) {
         Customer customer = new Customer();
         customer.setUsername(username);
         customer.setPassword(password);
@@ -521,60 +254,5 @@ public class DataInitializer {
         customer.setMail(mail);
         customer.setTelNo(telNo);
         return customer;
-    }
-
-    private Flight createFlight(Airline airline, Aircraft aircraft, Airport origin, Airport destination, 
-                                String kalkis, String inis, double price) {
-        Flight flight = new Flight();
-        flight.setAirline(airline);
-        flight.setAircraft(aircraft);
-        flight.setOriginAirport(origin);
-        flight.setDestinationAirport(destination);
-        flight.setKalkisTarihi(LocalDateTime.parse(kalkis.replace(" ", "T")));
-        flight.setInisTarihi(LocalDateTime.parse(inis.replace(" ", "T")));
-        flight.setBasePrice(BigDecimal.valueOf(price));
-        flight.setHasLayover(false);
-        return flight;
-    }
-    
-    private Flight createLayoverFlight(Airline airline, Aircraft aircraft, Airport origin, Airport destination,
-                                       Airport layoverAirport, String kalkis, String inis,
-                                       int layoverDurationMinutes, double price) {
-        Flight flight = new Flight();
-        flight.setAirline(airline);
-        flight.setAircraft(aircraft);
-        flight.setOriginAirport(origin);
-        flight.setDestinationAirport(destination);
-        flight.setKalkisTarihi(LocalDateTime.parse(kalkis.replace(" ", "T")));
-        flight.setInisTarihi(LocalDateTime.parse(inis.replace(" ", "T")));
-        flight.setBasePrice(BigDecimal.valueOf(price));
-        flight.setHasLayover(true);
-        flight.setLayoverAirport(layoverAirport);
-        flight.setLayoverDurationMinutes(layoverDurationMinutes);
-        return flight;
-    }
-
-    private Reservation createReservation(String pnr, Customer customer, Flight flight, String seat, 
-                                         String date, String status) {
-        Reservation reservation = new Reservation();
-        reservation.setPnr(pnr);
-        reservation.setCustomer(customer);
-        reservation.setFlight(flight);
-        reservation.setSeatNumber(seat);
-        reservation.setReservationDate(LocalDateTime.parse(date.replace(" ", "T")));
-        reservation.setStatus(status);
-        return reservation;
-    }
-
-    private Payment createPayment(Reservation reservation, String method, String currency, 
-                                  double amount, String time, String status) {
-        Payment payment = new Payment();
-        payment.setReservation(reservation);
-        payment.setMethod(method);
-        payment.setCurrency(currency);
-        payment.setAmount(BigDecimal.valueOf(amount));
-        payment.setPaymentTime(LocalDateTime.parse(time.replace(" ", "T")));
-        payment.setPaymentStatus(status);
-        return payment;
     }
 }

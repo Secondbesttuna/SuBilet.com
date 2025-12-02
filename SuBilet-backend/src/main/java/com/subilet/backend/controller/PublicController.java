@@ -38,6 +38,15 @@ public class PublicController {
     @Autowired
     private AirlineService airlineService;
 
+    @Autowired
+    private CityService cityService;
+
+    @Autowired
+    private AircraftService aircraftService;
+
+    @Autowired
+    private AircraftTypeService aircraftTypeService;
+
     // ==================== UÇUŞLAR ====================
 
     @GetMapping("/flights")
@@ -107,6 +116,33 @@ public class PublicController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error("Rezervasyon bulunamadı veya iptal edilemedi"));
         }
+    }
+
+    @GetMapping("/flights/{flightId}/occupied-seats")
+    public ResponseEntity<ApiResponse<List<String>>> getOccupiedSeats(@PathVariable Integer flightId) {
+        List<String> occupiedSeats = reservationService.getOccupiedSeats(flightId);
+        return ResponseEntity.ok(ApiResponse.success("Dolu koltuklar getirildi", occupiedSeats));
+    }
+
+    @GetMapping("/flights/{flightId}/seat-info")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> getFlightSeatInfo(@PathVariable Integer flightId) {
+        return flightService.getFlightById(flightId)
+                .map(flight -> {
+                    int totalSeats = flight.getAircraft() != null ? flight.getAircraft().getCapacity() : 0;
+                    int occupiedSeats = reservationService.getActiveReservationCount(flightId);
+                    int availableSeats = totalSeats - occupiedSeats;
+                    
+                    java.util.Map<String, Object> seatInfo = new java.util.HashMap<>();
+                    seatInfo.put("totalSeats", totalSeats);
+                    seatInfo.put("occupiedSeats", occupiedSeats);
+                    seatInfo.put("availableSeats", availableSeats);
+                    seatInfo.put("aircraftModel", flight.getAircraft() != null ? flight.getAircraft().getModel() : "Bilinmiyor");
+                    seatInfo.put("aircraftTailNumber", flight.getAircraft() != null ? flight.getAircraft().getTailNumber() : "");
+                    
+                    return ResponseEntity.ok(ApiResponse.success("Koltuk bilgileri getirildi", seatInfo));
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("Uçuş bulunamadı")));
     }
 
     // ==================== MÜŞTERİLER ====================
@@ -181,6 +217,37 @@ public class PublicController {
     public ResponseEntity<ApiResponse<List<Airline>>> getAllAirlines() {
         List<Airline> airlines = airlineService.getAllAirlines();
         return ResponseEntity.ok(ApiResponse.success("Havayolları başarıyla getirildi", airlines));
+    }
+
+    // ==================== ŞEHİRLER ====================
+
+    @GetMapping("/cities")
+    public ResponseEntity<ApiResponse<List<City>>> getAllCities() {
+        List<City> cities = cityService.getAllCities();
+        return ResponseEntity.ok(ApiResponse.success("Şehirler başarıyla getirildi", cities));
+    }
+
+    // ==================== UÇAKLAR ====================
+
+    @GetMapping("/aircrafts")
+    public ResponseEntity<ApiResponse<List<Aircraft>>> getAllAircrafts() {
+        List<Aircraft> aircrafts = aircraftService.getAllAircrafts();
+        return ResponseEntity.ok(ApiResponse.success("Uçaklar başarıyla getirildi", aircrafts));
+    }
+
+    // Havayoluna göre uçakları getir
+    @GetMapping("/aircrafts/airline/{airlineId}")
+    public ResponseEntity<ApiResponse<List<Aircraft>>> getAircraftsByAirline(@PathVariable Integer airlineId) {
+        List<Aircraft> aircrafts = aircraftService.getAircraftsByAirlineId(airlineId);
+        return ResponseEntity.ok(ApiResponse.success("Havayoluna ait uçaklar getirildi", aircrafts));
+    }
+
+    // ==================== UÇAK TÜRLERİ ====================
+
+    @GetMapping("/aircraft-types")
+    public ResponseEntity<ApiResponse<List<AircraftType>>> getAllAircraftTypes() {
+        List<AircraftType> types = aircraftTypeService.getAllAircraftTypes();
+        return ResponseEntity.ok(ApiResponse.success("Uçak türleri başarıyla getirildi", types));
     }
 }
 

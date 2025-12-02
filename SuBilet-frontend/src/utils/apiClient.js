@@ -25,6 +25,20 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Bildirim gösterilmeyecek endpoint'ler (frontend'de manuel kontrol edilecek)
+const SILENT_ENDPOINTS = [
+  '/payments',
+  '/admin/', // Admin paneli işlemleri için manuel bildirim gösterilecek
+  '/auth/register',
+  '/customers/tc/',
+  '/reservations', // Rezervasyon işlemleri için manuel bildirim gösterilecek
+];
+
+// URL'in sessiz endpoint olup olmadığını kontrol et
+const isSilentEndpoint = (url) => {
+  return SILENT_ENDPOINTS.some(endpoint => url.includes(endpoint));
+};
+
 // Response interceptor - Backend'den gelen ApiResponse'u işle
 apiClient.interceptors.response.use(
   (response) => {
@@ -34,11 +48,13 @@ apiClient.interceptors.response.use(
       const method = response.config?.method?.toLowerCase();
       const url = response.config?.url || '';
       
-      // Payment endpoint'leri için bildirim gösterme (sadece rezervasyon bildirimi yeterli)
-      const isPaymentEndpoint = url.includes('/payments');
+      // Sessiz endpoint'ler için bildirim gösterme
+      const shouldShowNotification = !isSilentEndpoint(url) && 
+        apiResponse.message && 
+        method && 
+        ['post', 'put', 'delete', 'patch'].includes(method);
       
-      // Notification göster (GET hariç tüm istekler için, payment hariç)
-      if (apiResponse.message && method && ['post', 'put', 'delete', 'patch'].includes(method) && !isPaymentEndpoint) {
+      if (shouldShowNotification) {
         showApiNotification(apiResponse);
       }
       
@@ -55,12 +71,10 @@ apiClient.interceptors.response.use(
   (error) => {
     // Hata durumunda
     const url = error.config?.url || '';
-    const isPaymentEndpoint = url.includes('/payments');
-    const isCustomerLookup = url.includes('/customers/tc/') || url.includes('/customers/') && error.config?.method === 'get';
-    const isAuthRegister = url.includes('/auth/register');
+    const isCustomerGet = url.includes('/customers/') && error.config?.method === 'get';
     
-    // Payment, customer lookup ve auth register endpoint'leri için hata bildirimi gösterme
-    if (!isPaymentEndpoint && !isCustomerLookup && !isAuthRegister) {
+    // Sessiz endpoint'ler ve customer GET için hata bildirimi gösterme
+    if (!isSilentEndpoint(url) && !isCustomerGet) {
       if (error.response?.data) {
         const errorData = error.response.data;
         
@@ -82,7 +96,6 @@ apiClient.interceptors.response.use(
         });
       }
     }
-    // Payment, customer lookup ve auth register endpoint'leri için hiçbir bildirim gösterme
     
     return Promise.reject(error);
   }

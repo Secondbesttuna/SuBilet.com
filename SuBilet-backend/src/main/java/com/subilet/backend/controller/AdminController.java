@@ -29,6 +29,9 @@ public class AdminController {
     @Autowired
     private AirlineService airlineService;
 
+    @Autowired
+    private AircraftService aircraftService;
+
     // ==================== ADMİN GİRİŞ ====================
 
     @PostMapping("/login")
@@ -151,6 +154,31 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error("Havayolu bulunamadı veya silinemedi"));
+        }
+    }
+
+    // ==================== UÇAK YÖNETİMİ ====================
+
+    @PostMapping("/aircrafts")
+    public ResponseEntity<ApiResponse<Aircraft>> createAircraft(@RequestBody Aircraft aircraft) {
+        try {
+            Aircraft created = aircraftService.createAircraftWithRelations(aircraft);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Uçak başarıyla oluşturuldu", created));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Uçak oluşturulamadı: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/aircrafts/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteAircraft(@PathVariable Integer id) {
+        try {
+            aircraftService.deleteAircraft(id);
+            return ResponseEntity.ok(ApiResponse.success("Uçak başarıyla silindi", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Uçak bulunamadı veya silinemedi"));
         }
     }
 }

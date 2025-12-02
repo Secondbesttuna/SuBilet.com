@@ -33,7 +33,7 @@ public class AirlineService {
 
         airline.setName(airlineDetails.getName());
         airline.setUlke(airlineDetails.getUlke());
-        airline.setUcusSayisi(airlineDetails.getUcusSayisi());
+        airline.setYillikUcusSayisi(airlineDetails.getYillikUcusSayisi());
         airline.setUcakSayisi(airlineDetails.getUcakSayisi());
         airline.setIataCode(airlineDetails.getIataCode());
         airline.setIcaoCode(airlineDetails.getIcaoCode());

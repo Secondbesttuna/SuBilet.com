@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import FlightService from '../services/FlightService';
+import apiClient from '../utils/apiClient';
 import './FlightSearch.css';
 
 function FlightSearch() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [flights, setFlights] = useState([]);
-  const [allFlights, setAllFlights] = useState([]);
+  const [seatInfoMap, setSeatInfoMap] = useState({}); // flightId -> seatInfo
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showLayoverFlights, setShowLayoverFlights] = useState(true);
 
   const originId = searchParams.get('origin');
   const destinationId = searchParams.get('destination');
@@ -20,32 +20,39 @@ function FlightSearch() {
     searchFlights();
   }, [originId, destinationId, date]);
 
-  useEffect(() => {
-    // Filtreleme değiştiğinde uçuşları yeniden filtrele
-    filterFlights();
-  }, [showLayoverFlights, allFlights]);
-
   const searchFlights = async () => {
     setLoading(true);
     setError('');
 
     try {
       const response = await FlightService.searchFlights(originId, destinationId, date);
-      const flights = response.data || response.apiResponse?.data || [];
-      setAllFlights(Array.isArray(flights) ? flights : []);
+      const flightsData = response.data || response.apiResponse?.data || [];
+      const flightsList = Array.isArray(flightsData) ? flightsData : [];
+      setFlights(flightsList);
+      
+      // Her uçuş için koltuk bilgisini yükle
+      const seatInfoPromises = flightsList.map(async (flight) => {
+        try {
+          const seatRes = await apiClient.get(`/flights/${flight.flightId}/seat-info`);
+          return { flightId: flight.flightId, seatInfo: seatRes.data || seatRes.apiResponse?.data };
+        } catch {
+          return { flightId: flight.flightId, seatInfo: null };
+        }
+      });
+      
+      const seatInfoResults = await Promise.all(seatInfoPromises);
+      const seatMap = {};
+      seatInfoResults.forEach(result => {
+        if (result.seatInfo) {
+          seatMap[result.flightId] = result.seatInfo;
+        }
+      });
+      setSeatInfoMap(seatMap);
     } catch (err) {
       setError('Uçuşlar yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
       console.error('Hata:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const filterFlights = () => {
-    if (!showLayoverFlights) {
-      setFlights(allFlights.filter(f => !f.hasLayover));
-    } else {
-      setFlights(allFlights);
     }
   };
 
@@ -94,17 +101,6 @@ function FlightSearch() {
         <p className="search-info">
           {flights.length} uçuş bulundu
         </p>
-        
-        <div className="filter-section">
-          <label className="filter-checkbox">
-            <input
-              type="checkbox"
-              checked={showLayoverFlights}
-              onChange={(e) => setShowLayoverFlights(e.target.checked)}
-            />
-            <span>Aktarmalı uçuşları göster</span>
-          </label>
-        </div>
       </div>
 
       {error && (
@@ -124,54 +120,73 @@ function FlightSearch() {
           </div>
         ) : (
           <div className="flights-list">
-            {flights.map(flight => (
-              <div key={flight.flightId} className="flight-card">
-                <div className="flight-info">
-                  <div className="airline-info">
-                    <h3>{flight.airline.name}</h3>
-                    <p className="flight-code">{flight.airline.iataCode}</p>
-                  </div>
-
-                  <div className="flight-route">
-                    <div className="route-point">
-                      <div className="time">{formatDateTime(flight.kalkisTarihi).split(' ')[1]}</div>
-                      <div className="airport">{flight.originAirport.code}</div>
-                      <div className="city">{flight.originAirport.city}</div>
+            {flights.map(flight => {
+              const seatInfo = seatInfoMap[flight.flightId];
+              return (
+                <div key={flight.flightId} className="flight-card">
+                  <div className="flight-info">
+                    <div className="airline-info">
+                      <h3>{flight.airline.name}</h3>
+                      <p className="flight-code">{flight.airline.iataCode}</p>
                     </div>
 
-                    <div className="route-line">
-                      <div className="duration">
-                        {calculateDuration(flight.kalkisTarihi, flight.inisTarihi)}
+                    <div className="flight-route">
+                      <div className="route-point">
+                        <div className="time">{formatDateTime(flight.kalkisTarihi).split(' ')[1]}</div>
+                        <div className="airport">{flight.originAirport.code}</div>
+                        <div className="city">{flight.originAirport.city?.city || 'N/A'}</div>
                       </div>
-                      <div className="line"></div>
-                      {flight.hasLayover && flight.layoverAirport && (
-                        <div className="layover-info">
-                          Aktarma: {flight.layoverAirport.code}
+
+                      <div className="route-line">
+                        <div className="duration">
+                          {calculateDuration(flight.kalkisTarihi, flight.inisTarihi)}
                         </div>
+                        <div className="line"></div>
+                      </div>
+
+                      <div className="route-point">
+                        <div className="time">{formatDateTime(flight.inisTarihi).split(' ')[1]}</div>
+                        <div className="airport">{flight.destinationAirport.code}</div>
+                        <div className="city">{flight.destinationAirport.city?.city || 'N/A'}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Uçak ve Koltuk Bilgisi */}
+                  <div className="aircraft-info">
+                    <div className="aircraft-model">
+                      ✈️ {flight.aircraft?.model || seatInfo?.aircraftModel || 'Bilinmiyor'}
+                      {flight.aircraft?.tailNumber && (
+                        <span className="tail-number"> ({flight.aircraft.tailNumber})</span>
                       )}
                     </div>
+                    {seatInfo && (
+                      <div className="seat-info">
+                        <span className="available-seats" style={{ 
+                          color: seatInfo.availableSeats > 10 ? '#28a745' : seatInfo.availableSeats > 0 ? '#ffc107' : '#dc3545' 
+                        }}>
+                          🪑 {seatInfo.availableSeats} koltuk müsait
+                        </span>
+                        <span className="total-seats"> / {seatInfo.totalSeats} toplam</span>
+                      </div>
+                    )}
+                  </div>
 
-                    <div className="route-point">
-                      <div className="time">{formatDateTime(flight.inisTarihi).split(' ')[1]}</div>
-                      <div className="airport">{flight.destinationAirport.code}</div>
-                      <div className="city">{flight.destinationAirport.city}</div>
+                  <div className="flight-booking">
+                    <div className="price">
+                      {formatPrice(flight.basePrice)}
                     </div>
+                    <button 
+                      onClick={() => handleBooking(flight)} 
+                      className="btn-book"
+                      disabled={seatInfo && seatInfo.availableSeats === 0}
+                    >
+                      {seatInfo && seatInfo.availableSeats === 0 ? 'Dolu' : 'Rezervasyon Yap'}
+                    </button>
                   </div>
                 </div>
-
-                <div className="flight-booking">
-                  <div className="price">
-                    {formatPrice(flight.basePrice)}
-                  </div>
-                  <button 
-                    onClick={() => handleBooking(flight)} 
-                    className="btn-book"
-                  >
-                    Rezervasyon Yap
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

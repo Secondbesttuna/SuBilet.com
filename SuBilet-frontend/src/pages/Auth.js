@@ -60,6 +60,23 @@ function Auth() {
     setLoading(true);
 
     try {
+      // Müşteri kaydı için yaş kontrolü - minimum 13 yaş
+      if (userType === 'customer' && customerForm.dogumTarihi) {
+        const birthDate = new Date(customerForm.dogumTarihi);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        
+        if (age < 13) {
+          setError('13 yaşından küçük kişiler kayıt olamaz. Lütfen bir veli/vasi eşliğinde işlem yapın.');
+          setLoading(false);
+          return;
+        }
+      }
+
       let response;
       if (userType === 'customer') {
         response = await AuthService.registerCustomer(customerForm);
@@ -128,37 +145,46 @@ function Auth() {
         <div className="auth-card">
           <h1>ŞUBİLET</h1>
           
-          {/* Login/Register Toggle */}
-          <div className="auth-toggle">
-            <button 
-              className={isLogin ? 'active' : ''} 
-              onClick={() => setIsLogin(true)}
-            >
-              Giriş Yap
-            </button>
-            <button 
-              className={!isLogin ? 'active' : ''} 
-              onClick={() => setIsLogin(false)}
-            >
-              Kayıt Ol
-            </button>
-          </div>
-
           {/* User Type Selection */}
           <div className="user-type-toggle">
             <button 
               className={userType === 'customer' ? 'active' : ''} 
-              onClick={() => setUserType('customer')}
+              onClick={() => { setUserType('customer'); setIsLogin(true); }}
             >
               👤 Müşteri
             </button>
             <button 
               className={userType === 'admin' ? 'active' : ''} 
-              onClick={() => setUserType('admin')}
+              onClick={() => { setUserType('admin'); setIsLogin(true); }}
             >
               🛡️ Yönetici
             </button>
           </div>
+
+          {/* Login/Register Toggle - Sadece müşteri için kayıt seçeneği */}
+          {userType === 'customer' && (
+            <div className="auth-toggle">
+              <button 
+                className={isLogin ? 'active' : ''} 
+                onClick={() => setIsLogin(true)}
+              >
+                Giriş Yap
+              </button>
+              <button 
+                className={!isLogin ? 'active' : ''} 
+                onClick={() => setIsLogin(false)}
+              >
+                Kayıt Ol
+              </button>
+            </div>
+          )}
+
+          {/* Admin için sadece giriş bilgisi */}
+          {userType === 'admin' && (
+            <div className="admin-info">
+              <p>🔐 Yönetici girişi</p>
+            </div>
+          )}
 
           {error && (
             <div className="error-message">
@@ -166,8 +192,8 @@ function Auth() {
             </div>
           )}
 
-          {/* Login Form */}
-          {isLogin && (
+          {/* Login Form - Müşteri için */}
+          {isLogin && userType === 'customer' && (
             <form onSubmit={handleLogin} className="auth-form">
               <div className="form-group">
                 <label>Kullanıcı Adı</label>
@@ -300,47 +326,35 @@ function Auth() {
             </form>
           )}
 
-          {/* Register Form - Admin */}
-          {!isLogin && userType === 'admin' && (
-            <form onSubmit={handleRegister} className="auth-form">
+          {/* Admin Login Form - Admin için sadece giriş */}
+          {userType === 'admin' && (
+            <form onSubmit={handleLogin} className="auth-form">
               <div className="form-group">
-                <label>Kullanıcı Adı *</label>
+                <label>Kullanıcı Adı</label>
                 <input
                   type="text"
                   name="username"
-                  value={adminForm.username}
-                  onChange={handleAdminFormChange}
+                  value={loginForm.username}
+                  onChange={handleLoginFormChange}
                   required
-                  placeholder="Kullanıcı adı"
+                  placeholder="Yönetici kullanıcı adı"
                 />
               </div>
 
               <div className="form-group">
-                <label>Ad Soyad *</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={adminForm.fullName}
-                  onChange={handleAdminFormChange}
-                  required
-                  placeholder="Ad Soyad"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Şifre *</label>
+                <label>Şifre</label>
                 <input
                   type="password"
                   name="password"
-                  value={adminForm.password}
-                  onChange={handleAdminFormChange}
+                  value={loginForm.password}
+                  onChange={handleLoginFormChange}
                   required
-                  placeholder="Şifre"
+                  placeholder="Şifrenizi girin"
                 />
               </div>
 
               <button type="submit" className="btn-submit" disabled={loading}>
-                {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
+                {loading ? 'Giriş yapılıyor...' : 'Yönetici Girişi'}
               </button>
             </form>
           )}

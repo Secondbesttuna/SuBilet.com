@@ -19,8 +19,8 @@ public class Airline {
     @Column(name = "ulke")
     private String ulke;
 
-    @Column(name = "ucus_sayisi")
-    private Integer ucusSayisi;
+    @Column(name = "yillik_ucus_sayisi")
+    private Integer yillikUcusSayisi;
 
     @Column(name = "ucak_sayisi")
     private Integer ucakSayisi;

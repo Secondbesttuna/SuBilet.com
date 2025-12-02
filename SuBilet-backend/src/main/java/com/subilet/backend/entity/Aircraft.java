@@ -17,6 +17,10 @@ public class Aircraft {
     @JoinColumn(name = "airline_id", nullable = false)
     private Airline airline;
 
+    @ManyToOne
+    @JoinColumn(name = "aircraft_type_id")
+    private AircraftType aircraftType;
+
     @Column(name = "model")
     private String model;
 

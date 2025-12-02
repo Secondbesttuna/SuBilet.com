@@ -265,9 +265,48 @@
   white-space: nowrap;
 }
 
-.btn-book:hover {
+.btn-book:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-book:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Uçak ve Koltuk Bilgisi */
+.aircraft-info {
+  background: #f8fafc;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  border-left: 3px solid #2563eb;
+}
+
+.aircraft-model {
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.aircraft-model .tail-number {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.seat-info {
+  font-size: 0.9rem;
+}
+
+.available-seats {
+  font-weight: 600;
+}
+
+.total-seats {
+  color: #64748b;
 }
 
 @media (max-width: 768px) {

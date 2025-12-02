@@ -35,6 +35,14 @@ function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Giriş kontrolü - giriş yapmadan uçuş aranamaz
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      showWarning('Giriş Gerekli', 'Uçuş aramak için lütfen giriş yapın!');
+      navigate('/auth');
+      return;
+    }
+
     if (!formData.originAirportId || !formData.destinationAirportId || !formData.date) {
       showWarning('Eksik Bilgi', 'Lütfen tüm alanları doldurun!');
       return;
@@ -102,7 +110,7 @@ function Home() {
                   </option>
                   {airports.map(airport => (
                     <option key={airport.airportId} value={airport.airportId}>
-                      {airport.code} - {airport.name} ({airport.city})
+                      {airport.code} - {airport.name} ({airport.city?.city || 'N/A'})
                     </option>
                   ))}
                 </select>
@@ -124,7 +132,7 @@ function Home() {
                   </option>
                   {airports.map(airport => (
                     <option key={airport.airportId} value={airport.airportId}>
-                      {airport.code} - {airport.name} ({airport.city})
+                      {airport.code} - {airport.name} ({airport.city?.city || 'N/A'})
                     </option>
                   ))}
                 </select>

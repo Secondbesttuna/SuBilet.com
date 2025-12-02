@@ -38,16 +38,28 @@ public class ReservationService {
     public Reservation createReservation(Reservation reservation) {
         // Customer'ı veritabanından yükle
         if (reservation.getCustomer() != null && reservation.getCustomer().getUserId() != null) {
-            Customer customer = customerRepository.findById(reservation.getCustomer().getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Müşteri bulunamadı: " + reservation.getCustomer().getUserId()));
+            Integer customerId = reservation.getCustomer().getUserId();
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Müşteri bulunamadı: " + customerId));
             reservation.setCustomer(customer);
         }
 
         // Flight'ı veritabanından yükle
+        Integer flightIdForSeatCheck = null;
         if (reservation.getFlight() != null && reservation.getFlight().getFlightId() != null) {
-            Flight flight = flightRepository.findById(reservation.getFlight().getFlightId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Uçuş bulunamadı: " + reservation.getFlight().getFlightId()));
+            final Integer flightId = reservation.getFlight().getFlightId();
+            flightIdForSeatCheck = flightId;
+            Flight flight = flightRepository.findById(flightId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Uçuş bulunamadı: " + flightId));
             reservation.setFlight(flight);
+        }
+
+        // Aynı uçuş ve koltuk için zaten rezervasyon var mı kontrol et
+        if (flightIdForSeatCheck != null && reservation.getSeatNumber() != null && !reservation.getSeatNumber().isEmpty()) {
+            boolean seatOccupied = reservationRepository.existsByFlightIdAndSeatNumber(flightIdForSeatCheck, reservation.getSeatNumber());
+            if (seatOccupied) {
+                throw new IllegalStateException("Bu koltuk zaten rezerve edilmiş: " + reservation.getSeatNumber());
+            }
         }
 
         // PNR otomatik oluştur
@@ -58,6 +70,16 @@ public class ReservationService {
         // İlişkileri yükle
         return reservationRepository.findByIdWithDetails(saved.getReservationId())
                 .orElse(saved);
+    }
+    
+    // Belirli bir uçuş için dolu koltukları getir
+    public List<String> getOccupiedSeats(Integer flightId) {
+        return reservationRepository.findOccupiedSeatsByFlightId(flightId);
+    }
+    
+    // Belirli bir uçuş için aktif rezervasyon sayısını getir
+    public int getActiveReservationCount(Integer flightId) {
+        return reservationRepository.countActiveReservationsByFlightId(flightId);
     }
 
     public Reservation updateReservation(Integer id, Reservation reservationDetails) {

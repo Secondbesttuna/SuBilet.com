@@ -19,12 +19,8 @@ public class Airport {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "city")
-    private String city;
-
-    @Column(name = "country")
-    private String country;
-
-    @Column(name = "time_zone")
-    private String timeZone;
+    // City ile ManyToOne ilişki
+    @ManyToOne
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
 }
