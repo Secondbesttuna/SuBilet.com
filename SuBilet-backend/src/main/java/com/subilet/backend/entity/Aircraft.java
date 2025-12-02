@@ -31,5 +31,5 @@ public class Aircraft {
     private Integer capacity;
 
     @Column(name = "uretici")
-    private String uretici;
+    private String uretici; 
 }

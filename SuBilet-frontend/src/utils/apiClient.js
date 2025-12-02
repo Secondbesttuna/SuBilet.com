@@ -72,6 +72,34 @@ apiClient.interceptors.response.use(
     // Hata durumunda
     const url = error.config?.url || '';
     const isCustomerGet = url.includes('/customers/') && error.config?.method === 'get';
+    const status = error.response?.status;
+    
+    // 401 Unauthorized - Oturum süresi dolmuş veya geçersiz token
+    if (status === 401) {
+      // Token'ı ve kullanıcı bilgilerini temizle
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('userType');
+      
+      // Auth sayfasına yönlendir (sadece auth sayfasında değilsek)
+      if (!window.location.pathname.includes('/auth')) {
+        showApiNotification({
+          success: false,
+          message: 'Oturumunuz sona erdi. Lütfen tekrar giriş yapın.',
+        });
+        window.location.href = '/auth';
+      }
+      return Promise.reject(error);
+    }
+    
+    // 403 Forbidden - Yetkisiz erişim
+    if (status === 403) {
+      showApiNotification({
+        success: false,
+        message: 'Bu işlem için yetkiniz bulunmuyor.',
+      });
+      return Promise.reject(error);
+    }
     
     // Sessiz endpoint'ler ve customer GET için hata bildirimi gösterme
     if (!isSilentEndpoint(url) && !isCustomerGet) {
