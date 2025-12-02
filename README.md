@@ -1,35 +1,35 @@
 # ✈️ ŞUBİLET - Uçuş Karşılaştırma ve Rezervasyon Sistemi
 
-[cite_start]**ŞUBİLET**, Türkiye’deki farklı havayolu firmalarının (THY, Pegasus, AnadoluJet vb.) uçuşlarını tek bir platformda toplayarak kullanıcıların fiyat, saat ve aktarma bilgilerine göre karşılaştırma yapabilmesini sağlayan bir veritabanı yönetim sistemidir[cite: 11].
+**ŞUBİLET**, Türkiye’deki farklı havayolu firmalarının (THY, Pegasus, AnadoluJet vb.) uçuşlarını tek bir platformda toplayarak kullanıcıların fiyat, saat ve aktarma bilgilerine göre karşılaştırma yapabilmesini sağlayan bir veritabanı yönetim sistemidir.
 
-[cite_start]Bu proje, **TOBB Ekonomi ve Teknoloji Üniversitesi** 2025-2026 Güz Dönemi **BIL372 - Veritabanı Sistemleri** dersi kapsamında geliştirilmiştir[cite: 1, 2, 3].
+Bu proje, **TOBB Ekonomi ve Teknoloji Üniversitesi** 2025-2026 Güz Dönemi **BIL372 - Veritabanı Sistemleri** dersi kapsamında geliştirilmiştir.
 
 ---
 
 ## 📖 Proje Hakkında
 
-Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazla siteyi ziyaret etmek zorunda kalmaktadır. [cite_start]ŞUBİLET, tüm büyük havayolu firmalarının verilerini merkezi bir veritabanında toplayarak kullanıcılara sade, hızlı ve güvenli bir çözüm sunmayı amaçlar[cite: 36, 37].
+Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazla siteyi ziyaret etmek zorunda kalmaktadır. [cite_start]ŞUBİLET, tüm büyük havayolu firmalarının verilerini merkezi bir veritabanında toplayarak kullanıcılara sade, hızlı ve güvenli bir çözüm sunmayı amaçlar.
 
-[cite_start]Sistem, **Obilet** benzeri bir yapıya sahip olup, uçuş arama, filtreleme ve rezervasyon işlemlerinin arka plan veritabanı tasarımını ve yönetimini kapsamaktadır[cite: 11].
+Sistem, **Obilet** benzeri bir yapıya sahip olup, uçuş arama, filtreleme ve rezervasyon işlemlerinin arka plan veritabanı tasarımını ve yönetimini kapsamaktadır.
 
 ## 🚀 Özellikler
 
-* [cite_start]**Uçuş Arama ve Filtreleme:** Kalkış-varış noktaları ve tarih bilgisine göre uçuşları listeleme; fiyat, saat ve aktarma kriterlerine göre filtreleme[cite: 39, 72].
-* [cite_start]**Rezervasyon Yönetimi:** Kullanıcıların seçtikleri uçuşlar için rezervasyon oluşturması (PNR, koltuk seçimi vb.)[cite: 41, 50].
-* [cite_start]**Kullanıcı Profili:** Geçmiş rezervasyonları görüntüleme ve üyelik bilgileri güncelleme[cite: 87, 98].
-* [cite_start]**Ödeme Simülasyonu:** Kredi kartı veya diğer yöntemlerle ödeme işlemlerinin veritabanına kaydedilmesi[cite: 90, 97].
+* **Uçuş Arama ve Filtreleme:** Kalkış-varış noktaları ve tarih bilgisine göre uçuşları listeleme; fiyat, saat ve aktarma kriterlerine göre filtreleme.
+* **Rezervasyon Yönetimi:** Kullanıcıların seçtikleri uçuşlar için rezervasyon oluşturması (PNR, koltuk seçimi vb.).
+* **Kullanıcı Profili:** Geçmiş rezervasyonları görüntüleme ve üyelik bilgileri güncelleme.
+* **Ödeme Simülasyonu:** Kredi kartı veya diğer yöntemlerle ödeme işlemlerinin veritabanına kaydedilmesi.
 
 ## 🛠️ Kullanılan Teknolojiler
 
-[cite_start]Proje, **web tabanlı** bir mimariye sahiptir ve aşağıdaki teknolojiler kullanılarak geliştirilmektedir[cite: 75, 76, 77]:
+Proje, **web tabanlı** bir mimariye sahiptir ve aşağıdaki teknolojiler kullanılarak geliştirilmektedir:
 
-* **Veritabanı:** PostgreSQL
+* **Veritabanı:** MySQL
 * **Backend:** Java 17, Maven, Spring Boot 3.4.12, Spring Data JPA, Lombok
-* **Frontend:** React 19, React Router DOM, Axios, Modern CSS3
+* **Frontend:** React 19, React Router DOM, Axios, Modern CSS3, javascript
 
 ## 🗄️ Veritabanı Tasarımı (ER Modeli)
 
-[cite_start]Sistemin veritabanı tasarımı aşağıdaki temel varlıklar üzerine kurulmuştur[cite: 45]:
+Sistemin veritabanı tasarımı aşağıdaki temel varlıklar üzerine kurulmuştur:
 
 * **Customer (Müşteri):** Kullanıcı bilgileri.
 * **Reservation (Rezervasyon):** Biletleme ve koltuk bilgileri.
@@ -41,9 +41,9 @@ Günümüzde kullanıcılar uçuş karşılaştırması yapmak için birden fazl
 
 | Öğrenci No | Ad Soyad | E-posta |
 |------------|----------|---------|
-| 231401023 | [cite_start]**Saadet Cansu Baktıroğlu** | sbaktiroglu@etu.edu.tr [cite: 7] |
-| 231101058 | [cite_start]**Tuna Yılmaz** | tunayilmaz@etu.edu.tr [cite: 8] |
-| 231104085 |  [cite_start]**Ahmet Taha Özcan** | ahmettahaozcan@etu.edu.tr [cite: 9] |
+| 231401023 | **Saadet Cansu Baktıroğlu** | sbaktiroglu@etu.edu.tr  |
+| 231101058 | **Tuna Yılmaz** | tunayilmaz@etu.edu.tr  |
+| 231104085 | **Ahmet Taha Özcan** | ahmettahaozcan@etu.edu.tr  |
 
 ## 🚀 Projeyi Çalıştırma
 
