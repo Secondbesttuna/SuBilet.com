@@ -56,11 +56,14 @@ function Booking() {
         seatNumber: ''
       });
       
-      // Kayıtlı ödeme yöntemlerini yükle
-      const savedPayments = localStorage.getItem('savedPaymentMethods');
-      if (savedPayments) {
-        const cards = JSON.parse(savedPayments);
-        setSavedCards(cards);
+      // Kayıtlı ödeme yöntemlerini yükle (kullanıcıya özel)
+      const userId = userObj.userId || userObj.id;
+      if (userId) {
+        const savedPayments = localStorage.getItem(`savedPaymentMethods_${userId}`);
+        if (savedPayments) {
+          const cards = JSON.parse(savedPayments);
+          setSavedCards(cards);
+        }
       }
     }
 
@@ -154,7 +157,11 @@ function Booking() {
   const handleDeleteCard = (index) => {
     const updatedCards = savedCards.filter((_, i) => i !== index);
     setSavedCards(updatedCards);
-    localStorage.setItem('savedPaymentMethods', JSON.stringify(updatedCards));
+    // Kullanıcıya özel kaydet
+    const userId = customer?.userId || customer?.id;
+    if (userId) {
+      localStorage.setItem(`savedPaymentMethods_${userId}`, JSON.stringify(updatedCards));
+    }
     if (selectedCardIndex === index) {
       setSelectedCardIndex(-1);
       setPaymentData({ cardNumber: '', cardHolder: '', expiryDate: '', cvv: '' });
@@ -315,7 +322,11 @@ function Booking() {
         };
         const updatedCards = [...savedCards, newCard];
         setSavedCards(updatedCards);
-        localStorage.setItem('savedPaymentMethods', JSON.stringify(updatedCards));
+        // Kullanıcıya özel kaydet
+        const userId = customer?.userId || customer?.id;
+        if (userId) {
+          localStorage.setItem(`savedPaymentMethods_${userId}`, JSON.stringify(updatedCards));
+        }
       }
 
       // Başarılı!
