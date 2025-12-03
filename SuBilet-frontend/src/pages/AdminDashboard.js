@@ -575,9 +575,6 @@ function AdminDashboard() {
     <div className="admin-dashboard">
       <div className="admin-header">
         <h1>🛫 ŞUBİLET Admin Paneli</h1>
-        <button onClick={handleLogout} className="btn-logout">
-          Çıkış Yap
-        </button>
       </div>
 
       {/* İstatistik Kartları */}

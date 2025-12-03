@@ -74,13 +74,19 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/aircrafts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/aircrafts/**").permitAll()
                 
-                // ==================== CUSTOMER + ADMIN ENDPOINTS ====================
-                // Uçuş arama ve detay - giriş yapmış kullanıcılar
-                .requestMatchers(HttpMethod.GET, "/api/flights").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/flights/**").authenticated()
+                // Uçuş listesi ve arama - HERKESE AÇIK
+                .requestMatchers(HttpMethod.GET, "/api/flights").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/flights/**").permitAll()
                 
-                // Rezervasyon işlemleri - giriş yapmış kullanıcılar
-                .requestMatchers("/api/reservations/**").authenticated()
+                // Rezervasyon listesi - HERKESE AÇIK
+                .requestMatchers(HttpMethod.GET, "/api/reservations").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reservations/**").permitAll()
+                
+                // ==================== CUSTOMER + ADMIN ENDPOINTS ====================
+                // Rezervasyon işlemleri - giriş yapmış kullanıcılar (POST/PUT/DELETE için)
+                .requestMatchers(HttpMethod.POST, "/api/reservations/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/reservations/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/reservations/**").authenticated()
                 
                 // Ödeme işlemleri - giriş yapmış kullanıcılar
                 .requestMatchers("/api/payments/**").authenticated()
