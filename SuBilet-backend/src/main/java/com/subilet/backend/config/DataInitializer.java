@@ -23,7 +23,7 @@ public class DataInitializer {
             CustomerRepository customerRepository) {
 
         return args -> {
-            // Veritabanı boş mu kontrol et - Admin tablosu boşsa başlangıç verilerini yükle
+            // DB doluysa atla
             if (adminRepository.count() > 0) {
                 System.out.println("ℹ️ Veritabanında veri mevcut. DataInitializer atlanıyor...");
                 return;
@@ -31,38 +31,37 @@ public class DataInitializer {
 
             System.out.println("🚀 ŞUBİLET - Başlangıç Verileri Yükleniyor...");
 
-            // ========================================
-            // ADMIN KULLANICISI (1 Admin)
-            // ========================================
+            // Adminler
             Admin admin = new Admin();
             admin.setUsername("admin");
             admin.setPassword("admin123");
             admin.setFullName("Sistem Yöneticisi");
             adminRepository.save(admin);
+            
             Admin admin1 = new Admin();
-            admin.setUsername("cansu");
-            admin.setPassword("cansu123");
-            admin.setFullName("Saadetcansu");
-            adminRepository.save(admin);
+            admin1.setUsername("cansu");
+            admin1.setPassword("cansu123");
+            admin1.setFullName("Saadet Cansu");
+            adminRepository.save(admin1);
+            
             Admin admin2 = new Admin();
-            admin.setUsername("ato");
-            admin.setPassword("ato123");
-            admin.setFullName("AhmetTaha");
-            adminRepository.save(admin);
+            admin2.setUsername("ahmet");
+            admin2.setPassword("ahmet123");
+            admin2.setFullName("Ahmet Taha");
+            adminRepository.save(admin2);
+            
             Admin admin3 = new Admin();
-            admin.setUsername("tuna");
-            admin.setPassword("tuna123");
-            admin.setFullName("Tuna");
-            adminRepository.save(admin);
+            admin3.setUsername("tuna");
+            admin3.setPassword("tuna123");
+            admin3.setFullName("Tuna");
+            adminRepository.save(admin3);
 
 
 
 
-            System.out.println("✅ 1 Admin kullanıcı eklendi (admin / admin123)");
+            System.out.println("✅ 4 Admin kullanıcı eklendi (admin, cansu, ato, tuna)");
 
-            // ========================================
-            // ŞEHİRLER (Türkiye'nin 81 İli)
-            // ========================================
+            // Şehirler (81 il)
             String[] turkiyeIlleri = {
                 "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin",
                 "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa",
@@ -83,7 +82,7 @@ public class DataInitializer {
                 allCities.add(city);
             }
             
-            // Havalimanı oluşturmak için sık kullanılan şehirleri referans olarak al
+            // Havalimanları için şehir referansları
             City istanbul = allCities.stream().filter(c -> c.getCity().equals("İstanbul")).findFirst().orElse(allCities.get(33));
             City ankara = allCities.stream().filter(c -> c.getCity().equals("Ankara")).findFirst().orElse(allCities.get(5));
             City antalya = allCities.stream().filter(c -> c.getCity().equals("Antalya")).findFirst().orElse(allCities.get(6));
@@ -100,9 +99,7 @@ public class DataInitializer {
 
             System.out.println("✅ " + allCities.size() + " Şehir eklendi (Türkiye'nin 81 ili)");
 
-            // ========================================
-            // HAVALİMANLARI (15 Havalimanı)
-            // ========================================
+            // Havalimanları
             List<Airport> airports = new ArrayList<>();
             
             airports.add(createAirport("IST", "İstanbul Havalimanı", istanbul));
@@ -126,10 +123,7 @@ public class DataInitializer {
             }
             System.out.println("✅ " + airports.size() + " Havalimanı eklendi");
 
-            // ========================================
-            // HAVAYOLU ŞİRKETLERİ (4 Havayolu - ucakSayisi=0, yillikUcusSayisi)
-            // ========================================
-            // Yıllık uçuş sayıları gerçekçi değerler
+            // Havayolları
             Airline thy = createAirline("Türk Hava Yolları", "Türkiye", 400000, 0, "TK", "THY");
             Airline pegasus = createAirline("Pegasus Hava Yolları", "Türkiye", 180000, 0, "PC", "PGT");
             Airline anadolu = createAirline("AnadoluJet", "Türkiye", 120000, 0, "TJ", "AJA");
@@ -142,12 +136,10 @@ public class DataInitializer {
 
             System.out.println("✅ 4 Havayolu şirketi eklendi (uçak sayısı: 0 - manuel eklenecek)");
 
-            // ========================================
-            // UÇAK TÜRLERİ (20 Farklı Model)
-            // ========================================
+            // Uçak türleri
             List<AircraftType> aircraftTypes = new ArrayList<>();
             
-            // Boeing Modelleri
+            // Boeing
             aircraftTypes.add(createAircraftType("Boeing 737-800", "Boeing", 189, 5765, 842));
             aircraftTypes.add(createAircraftType("Boeing 737 MAX 8", "Boeing", 178, 6570, 839));
             aircraftTypes.add(createAircraftType("Boeing 737 MAX 9", "Boeing", 193, 6570, 839));
@@ -156,7 +148,7 @@ public class DataInitializer {
             aircraftTypes.add(createAircraftType("Boeing 767-300ER", "Boeing", 269, 11070, 850));
             aircraftTypes.add(createAircraftType("Boeing 757-200", "Boeing", 200, 7222, 850));
             
-            // Airbus Modelleri
+            // Airbus
             aircraftTypes.add(createAircraftType("Airbus A320", "Airbus", 180, 6100, 840));
             aircraftTypes.add(createAircraftType("Airbus A320neo", "Airbus", 186, 6300, 840));
             aircraftTypes.add(createAircraftType("Airbus A321", "Airbus", 220, 5950, 840));
@@ -165,15 +157,15 @@ public class DataInitializer {
             aircraftTypes.add(createAircraftType("Airbus A350-900", "Airbus", 325, 15000, 903));
             aircraftTypes.add(createAircraftType("Airbus A380-800", "Airbus", 555, 15200, 903));
             
-            // Embraer Modelleri
+            // Embraer
             aircraftTypes.add(createAircraftType("Embraer E190", "Embraer", 106, 4537, 829));
             aircraftTypes.add(createAircraftType("Embraer E195-E2", "Embraer", 146, 4815, 833));
             
-            // Bombardier Modelleri
+            // Bombardier
             aircraftTypes.add(createAircraftType("Bombardier CRJ900", "Bombardier", 90, 2956, 830));
             aircraftTypes.add(createAircraftType("Bombardier Q400", "Bombardier", 78, 2040, 667));
             
-            // ATR Modelleri
+            // ATR
             aircraftTypes.add(createAircraftType("ATR 72-600", "ATR", 78, 1528, 510));
             aircraftTypes.add(createAircraftType("ATR 42-600", "ATR", 48, 1326, 510));
 
@@ -182,31 +174,21 @@ public class DataInitializer {
             }
             System.out.println("✅ " + aircraftTypes.size() + " Uçak türü eklendi");
 
-            // ========================================
-            // ÖRNEK MÜŞTERİ (1 Müşteri - Ahmet Yılmaz)
-            // ========================================
+            // Test müşterisi
             Customer ahmet = createCustomer("ahmet", "ahmet123", "12345678901", "Ahmet Yılmaz", 
                 "1990-05-15", "Erkek", "ahmet.yilmaz@example.com", "05321234567");
             customerRepository.save(ahmet);
 
             System.out.println("✅ 1 Örnek müşteri eklendi (ahmet / ahmet123)");
 
-            // ========================================
-            // UÇUŞLAR - BOŞ (Manuel eklenecek)
-            // ========================================
+            // Uçuşlar ve rezervasyonlar admin panelinden eklenecek
             System.out.println("✅ Uçuşlar boş bırakıldı (admin panelinden eklenecek)");
-
-            // ========================================
-            // REZERVASYONLAR - BOŞ (Manuel eklenecek)
-            // ========================================
             System.out.println("✅ Rezervasyonlar boş bırakıldı (kullanıcılar tarafından oluşturulacak)");
 
-            // ========================================
-            // ÖZET
-            // ========================================
+            // Özet
             System.out.println("\n🎉 TÜM VERİLER BAŞARIYLA YÜKLENDİ!");
             System.out.println("📊 Özet:");
-            System.out.println("   - 1 Admin kullanıcı (admin / admin123)");
+            System.out.println("   - 4 Admin kullanıcı (admin, cansu, ato, tuna)");
             System.out.println("   - 81 Şehir (Türkiye'nin tüm illeri)");
             System.out.println("   - " + airports.size() + " Havalimanı");
             System.out.println("   - 4 Havayolu (uçak sayısı: 0)");
@@ -216,12 +198,11 @@ public class DataInitializer {
             System.out.println("   - 0 Uçuş (manuel eklenecek)");
             System.out.println("   - 0 Rezervasyon");
             System.out.println("\n🚀 Backend hazır!");
-            System.out.println("🔑 Admin: admin / admin123");
+            System.out.println("🔑 Adminler: admin/admin123, cansu/cansu123, ahmet/ahmet123, tuna/tuna123");
             System.out.println("👤 Müşteri: ahmet / ahmet123");
         };
     }
 
-    // Helper metodlar
     private City createCity(String city, String country, String timeZone) {
         City cityEntity = new City();
         cityEntity.setCity(city);
