@@ -39,6 +39,24 @@ public class DataInitializer {
             admin.setPassword("admin123");
             admin.setFullName("Sistem Yöneticisi");
             adminRepository.save(admin);
+            Admin admin1 = new Admin();
+            admin.setUsername("cansu");
+            admin.setPassword("cansu123");
+            admin.setFullName("Saadetcansu");
+            adminRepository.save(admin);
+            Admin admin2 = new Admin();
+            admin.setUsername("ato");
+            admin.setPassword("ato123");
+            admin.setFullName("AhmetTaha");
+            adminRepository.save(admin);
+            Admin admin3 = new Admin();
+            admin.setUsername("tuna");
+            admin.setPassword("tuna123");
+            admin.setFullName("Tuna");
+            adminRepository.save(admin);
+
+
+
 
             System.out.println("✅ 1 Admin kullanıcı eklendi (admin / admin123)");
 
